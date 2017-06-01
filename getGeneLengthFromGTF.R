@@ -1,3 +1,4 @@
+## Please see https://www.biostars.org/p/196548/#196757
 ## Transcript Length
 library(GenomicRanges)
 library(rtracklayer)
