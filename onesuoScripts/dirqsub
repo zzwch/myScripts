@@ -1,0 +1,65 @@
+#!/bin/bash
+# 2016-07-21
+if [[ $# -lt 1 ]];then
+  echo "USAGE: `basename $0` [-r] [-n taskname] [-c command_in_quote] [-p 2] [-m 16gb] [-f listfile]"
+  echo "HELP: `basename $0` -h"
+  echo "VERSION: `basename $0` -v"
+  exit 1
+fi
+
+while getopts "hvn:c:p:rf:m:" arg
+do
+  case $arg in
+    h)
+      echo "dirqsub 1.0"
+      echo "(2016-07-21)"
+      echo "USAGE:`basename $0` [-n taskname] [-c command_in_quote] [-p 2] [-m 16gb] [-f listfile]"
+      exit 1
+      ;;
+    v)
+      echo "myqsub version 1.0"
+      exit 1
+      ;;
+    n)
+      name=$OPTARG
+      ;;
+    c)
+      command=$OPTARG
+      ;;
+    p)
+      p=$OPTARG
+      ;;
+    m)
+      m=$OPTARG
+      ;;
+    r)
+      r="run"
+      ;;
+    f)
+      file=$OPTARG
+      ;;
+    ?)
+      echo "unkonw argument"
+      echo "please see help using -h"
+      exit 1
+      ;;
+  esac
+done
+
+name=${name:?name?}
+file=${file:?file?}
+command=${command:?command?}
+p=${p:-2}
+m=${m:-16gb}
+
+cat ${file} | while read LINE
+do
+  cd $LINE
+  pwd
+  if [[ $r = "run" ]];then
+    myqsub -n ${LINE}_$name -c "$command" -p $p -m $m -r
+  else
+    myqsub -n ${LINE}_$name -c "$command" -p $p -m $m
+  fi
+  cd ..
+done

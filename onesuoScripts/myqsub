@@ -1,0 +1,73 @@
+#!/bin/bash
+# 2016-07-20
+if [[ $# -lt 1 ]];then
+  echo "USAGE: `basename $0` [-r] [-n taskname] [-c command_in_quote] [-d 1] [-p 2] [-m 16gb]"
+  echo "HELP: `basename $0` -h"
+  echo "VERSION: `basename $0` -v"
+  exit 1
+fi
+
+while getopts "hvn:c:n:d:p:rm:" arg
+do
+  case $arg in
+    h)
+      echo "myqsub 1.0"
+      echo "(2016-07-20)"
+      echo "USAGE:`basename $0` [-n taskname] [-c command_in_quote] [-d 1] [-p 2] [-m 16gb]"
+      exit 1
+      ;;
+    v)
+      echo "myqsub version 1.0"
+      exit 1
+      ;;
+    n)
+      name=$OPTARG
+      ;;
+    c)
+      command=$OPTARG
+      ;;
+    d)
+      d=$OPTARG
+      ;;
+    p)
+      p=$OPTARG
+      ;;
+    m)
+      m=$OPTARG
+      ;;
+    r)
+      r="run"
+      ;;
+    ?)
+      echo "unkonw argument"
+      echo "please see help using -h"
+      exit 1
+      ;;
+  esac
+done
+
+name=${name:?Please assign a name for the task!}
+d=${d:-1}
+p=${p:-2}
+m=${m:-16gb}
+echo "starting task ${name}..."
+
+echo '#!/bin/bash' > ${name}.sh
+echo 'source ~/.bash_profile' >> ${name}.sh
+echo "cd `pwd`" >> ${name}.sh
+echo -e $command >> ${name}.sh
+
+echo "sh created!"
+
+echo '#!/bin/sh' > ${name}.pbs
+echo "#PBS -N ${name}" >> ${name}.pbs
+echo "#PBS -l mem=${m},nodes=${d}:ppn=${p}" >> ${name}.pbs
+echo '#PBS -q 64G.q' >> ${name}.pbs
+echo '#PBS -V' >> ${name}.pbs
+echo "cd `pwd`" >> ${name}.pbs
+echo "sh ${name}.sh" >> ${name}.pbs
+
+echo "pbs created!"
+r=${r:?Do not submit!}
+qsub ${name}.pbs
+echo "submitted!"

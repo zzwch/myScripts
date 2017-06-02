@@ -1,0 +1,46 @@
+#!/bin/bash
+# 2016-08-02
+if [[ $# -lt 1 ]];then
+  echo "USAGE: `basename $0` [-d destination] [-f listfile]"
+  echo "HELP: `basename $0` -h"
+  echo "VERSION: `basename $0` -v"
+  exit 1
+fi
+
+while getopts "hvd:f:" arg
+do
+  case $arg in
+    h)
+      echo "dircp 1.0"
+      echo "(2016-08-02)"
+      echo "USAGE:`basename $0` [-d second-dir] [-f listfile]"
+      exit 1
+      ;;
+    v)
+      echo "dircp version 1.0"
+      exit 1
+      ;;
+    d)
+      dir=$OPTARG
+      ;;
+    f)
+      file=$OPTARG
+      ;;
+    ?)
+      echo "unkonw argument"
+      echo "please see help using -h"
+      exit 1
+      ;;
+  esac
+done
+
+file=${file:?file?}
+dir=${dir:?second-dir?}
+
+cat ${file} | while read LINE
+do
+  cd $LINE
+  pwd
+  cp $dir ../${LINE}_`basename $dir`
+  cd ..
+done

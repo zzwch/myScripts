@@ -1,0 +1,4 @@
+#!/bin/bash
+# 2016-07-20
+echo PATH=`pwd`:\$PATH >> ~/.bash_profile
+source ~/.bash_profile
