@@ -1,0 +1,22 @@
+Please using the following directories structure to store data and files (Important!)
+And run the smartseq_pipeline main.sh files in the smartseq_pipeline directory (Important!)
+
+workspace dir
+|-- data_raw
+|   |-- E5-K_R1.fastq.gz
+|   |-- E5-K_R2.fastq.gz
+|   |-- E5-L_R1.fastq.gz
+|   |-- E5-L_R2.fastq.gz
+|   |-- E5-M_R1.fastq.gz
+|   |-- E5-M_R2.fastq.gz
+|   |-- E5-X_R1.fastq.gz
+|   `-- E5-X_R2.fastq.gz
+`-- sample.txt
+
+Usage:
+1. file "sample" includes sample names corresponding to file names under data_raw, such as the following
+E5-K
+E5-L
+E5-M
+E5-X
+2. using "nohup sh $pipelineDir/main.sh $workspace_dir $sample_path $process_n $barcode_path > pipeline.log 2>&1 &" to run.
