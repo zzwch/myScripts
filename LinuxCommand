@@ -1,2 +1,19 @@
 #kill 筛选出的多个线程
 ps aux|grep 510|grep -v grep|awk '{print $2}'|xargs kill -9
+
+###############
+# git command #
+###############
+git init #不常用
+git clone $url #克隆一个仓库
+git status #查看本次历史操作
+git commit -a -m "some message" #本地仓库的修改提交
+git config --global user.email "youremail@email.com"
+git config --global user.name "yourusername"
+git remote
+git push #提交至远端仓库，请确认无误后提交！！！
+
+# 如果想完全回退到以前某一版本，连续使用以下命令
+git reflog #查看历史git命令，找到目标版本的ID号，如"704639c"
+git reset --hard 704639c
+git push origin -f
