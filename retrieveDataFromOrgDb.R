@@ -1,6 +1,6 @@
 # using select() to extract data from AnnotationDb object.
 # Here we take org.Hs.eg.db for example.
-# we will extract genes included in Cell cycle GO term(GO:0007049) 
+# we will extract genes included in Cell cycle GO term(GO:0007049) and its child terms. 
 library(org.Hs.eg.db)
 columns(org.Hs.eg.db)
 --------------
