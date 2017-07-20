@@ -1,3 +1,15 @@
+#通过反向隧道访问局域网服务器（局域网服务器必须能联网）
+局域网内服务器：userA@aa.aaa.aa.aaa:portA
+外网服务器：userB@bb.bbb.bbb.bbb:portB
+1. 在局域网服务器A上执行ssh-keygen 生成~/.ssh/id_rsa.pub文件
+2. 将生成的文件拷贝至外网服务器B上，cat id_rsa.pub >> ~/.ssh/authorized_keys
+   确认authorized_keys 文件的权限为-rw-------，否则执行chmod 600 ~/.ssh/authorized_keys (重要!!!)
+3. 在局域网服务器A上执行以下命令
+nohup autossh -M portX -NR localhost:portY:localhost:portA userB@bb.bbb.bbb.bbb -p portB > autossh.log 2>&1 &
+portX和portY为任意可用端口，如5004和5005
+4. 在外网服务器B上执行 ssh -p portY userA@localhost 即可访问局域网服务器A
+
+
 #kill 筛选出的多个线程
 ps aux|grep 510|grep -v grep|awk '{print $2}'|xargs kill -9
 
