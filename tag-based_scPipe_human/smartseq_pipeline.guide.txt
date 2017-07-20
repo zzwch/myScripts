@@ -19,5 +19,5 @@ E5-K
 E5-L
 E5-M
 E5-X
-2. using "nohup sh $pipelineDir/main.sh $workspace_dir $sample_path $process_n $skipcode $barcode_path > pipeline.log 2>&1 &" to run.
+2. using "nohup sh $pipelineDir/main.sh $workspace_dir $sample_path $skipcode $process_n $barcode_path > pipeline.log 2>&1 &" to run.
 3. There will be two directories named "out_smartseq" and "out_results" to be created in the workspace dir!
