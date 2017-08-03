@@ -1,3 +1,15 @@
+#删除多个同级文件夹
+cat sample | while read LINE; do for i in `seq 1 96`;do rm out_smartseq/$LINE/${LINE}_sc$i/tophat_out_refgene/ -r ;done; done
+or
+cat sample | while read LINE;
+do 
+  for i in `seq 1 96`;
+  do
+    rm out_smartseq/$LINE/${LINE}_sc$i/tophat_out_refgene/ -r ;
+  done;
+done
+
+
 #通过反向隧道访问局域网服务器（局域网服务器必须能联网）
 局域网内服务器：userA@aa.aaa.aa.aaa:portA
 外网服务器：userB@bb.bbb.bbb.bbb:portB
