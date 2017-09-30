@@ -1,0 +1,29 @@
+#######################################################################################################################################
+# Using Bismark to process WGBS data.
+# Learn more about Bismark @ http://www.bioinformatics.babraham.ac.uk/projects/bismark/
+#
+# This is a custom PIPELINE including sequential commands, which should be modified and localized properly in your own environment.
+#######################################################################################################################################
+# Quality Control 
+fastqc -t 2 *_1.*.fq.gz *_2.*.fq.gz 
+perl /home/lizongcheng/myScripts/QC_lite_0.0.7c.pl --quality 20 --length 50 --left_R1 9 --left_R2 9 --trimx 1 --symmetry --outdir ./lxlqc_clean_data *_1.*.fq.gz *_2.*.fq.gz 
+fastqc -t 2 ./lxlqc_clean_data/*.fq.gz 
+# bismark mapping 
+bismark --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 -o ./mm10/ /data1/users/lizongcheng/genomes/Mus_musculus/mm10 -1 ./lxlqc_clean_data/*_val_1.fq.gz -2 ./lxlqc_clean_data/*_val_2.fq.gz 
+bismark --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 -o ./mm10/ /data1/users/lizongcheng/genomes/Mus_musculus/mm10 ./mm10/*_val_1.fq.gz_unmapped_reads_1.fq.gz 
+bismark --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 -o ./mm10/ /data1/users/lizongcheng/genomes/Mus_musculus/mm10 ./mm10/*_val_2.fq.gz_unmapped_reads_2.fq.gz  
+# deduplicated 
+deduplicate_bismark -p --bam ./mm10/*_val_1_bismark_bt2_pe.bam 
+deduplicate_bismark -s --bam ./mm10/*_val_1.fq.gz_unmapped_reads_1_bismark_bt2.bam 
+deduplicate_bismark -s --bam ./mm10/*_val_2.fq.gz_unmapped_reads_2_bismark_bt2.bam 
+# bismark_methylation_extractor 
+bismark_methylation_extractor -p --multicore 4 --bedGraph --counts --zero_based --merge_non_CpG --comprehensive -o ./mm10/methylation_extractor ./mm10/*_val_1_bismark_bt2_pe.deduplicated.bam 
+bismark_methylation_extractor -s --multicore 4 --bedGraph --counts --zero_based --merge_non_CpG --comprehensive -o ./mm10/methylation_extractor ./mm10/*_val_1.fq.gz_unmapped_reads_1_bismark_bt2.deduplicated.bam 
+bismark_methylation_extractor -s --multicore 4 --bedGraph --counts --zero_based --merge_non_CpG --comprehensive -o ./mm10/methylation_extractor ./mm10/*_val_2.fq.gz_unmapped_reads_2_bismark_bt2.deduplicated.bam 
+
+bismark2bedGraph --dir ./mm10/methylation_extractor/ -o CpG_context_merged.deduplicated.txt ./mm10/methylation_extractor/CpG_context_*_val_1_bismark_bt2_pe.deduplicated.txt ./mm10/methylation_extractor/CpG_context_*_val_1.fq.gz_unmapped_reads_1_bismark_bt2.deduplicated.txt ./mm10/methylation_extractor/CpG_context_*_val_2.fq.gz_unmapped_reads_2_bismark_bt2.deduplicated.txt 
+
+# lambda 
+bismark -o ./lambda/ --temp_dir ./lambda/ --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 /data1/users/lizongcheng/genomes/lambda -1 ./lxlqc_clean_data/*_val_1.fq.gz -2 ./lxlqc_clean_data/*_val_2.fq.gz 
+bismark -o ./lambda/ --temp_dir ./lambda/ --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 /data1/users/lizongcheng/genomes/lambda ./lambda/*_val_1.fq.gz_unmapped_reads_1.fq.gz 
+bismark -o ./lambda/ --temp_dir ./lambda/ --non_directional --unmapped --fastq --phred33-quals --dovetail -N 1 --multicore 1 -p 12 /data1/users/lizongcheng/genomes/lambda ./lambda/*_val_2.fq.gz_unmapped_reads_2.fq.gz 
