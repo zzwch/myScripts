@@ -1,8 +1,7 @@
 #######################################################################################################################################
 # Using Bismark to process WGBS data.
-# Learn more about Bismark @ http://www.bioinformatics.babraham.ac.uk/projects/bismark/
-#
-# This is a custom PIPELINE including sequential commands, which should be modified and localized properly in your own environment.
+# 1. Install Bismark on your server or cluster. Learn more about Bismark @ http://www.bioinformatics.babraham.ac.uk/projects/bismark/
+# 2. The following is a custom PIPELINE including sequential commands, which should be modified and localized properly in your own environment.
 #######################################################################################################################################
 # Quality Control 
 fastqc -t 2 *_1.*.fq.gz *_2.*.fq.gz 
