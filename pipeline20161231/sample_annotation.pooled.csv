@@ -1,6 +1,0 @@
-Sample_ID,bismarkCovFile,Cell_type,ECvsT1,ECvsT2,T1vsT2,T2vsE14,E14vsBM,ECvsPre,PrevsE14
-EC,/data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/bismarkCoverage/EC_CpG_context_pooled.deduplicated.txt.gz.bismark.cov.gz,EC,EC,EC,NA,NA,NA,EC,NA
-T1,/data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/bismarkCoverage/T1_CpG_context_pooled.deduplicated.txt.gz.bismark.cov.gz,T1,T1,NA,T1,NA,NA,Pre,Pre
-T2,/data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/bismarkCoverage/T2_CpG_context_pooled.deduplicated.txt.gz.bismark.cov.gz,T2,NA,T2,T2,T2,NA,Pre,Pre
-E14,/data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/bismarkCoverage/E14_CpG_context_pooled.deduplicated.txt.gz.bismark.cov.gz,E14,NA,NA,NA,E14,E14,NA,E14
-BM,/data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/bismarkCoverage/BM_CpG_context_pooled.deduplicated.txt.gz.bismark.cov.gz,BM,NA,NA,NA,NA,BM,NA,NA
