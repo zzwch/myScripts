@@ -1,0 +1,214 @@
+Loading required package: GenomicRanges
+Loading required package: methods
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, cbind, colnames, do.call,
+    duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, lengths, Map, mapply, match, mget, order,
+    paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind,
+    Reduce, rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unsplit, which, which.max, which.min
+
+Loading required package: S4Vectors
+
+Attaching package: ‘S4Vectors’
+
+The following objects are masked from ‘package:base’:
+
+    colMeans, colSums, expand.grid, rowMeans, rowSums
+
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+Loading required package: methylKit
+[1] "CURRENT WORKDIR: /data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/pipeline20161231/analysis"
+[1] "INFO: dir.report directory created!"
+[1] "INFO: methylDB directory exists, and continue to the next step."
+creating directory /data1/users/lizongcheng/Tanglab_data/HSC_DNA_Methylation_Data/methylKit_pooledSamples/pipeline20161231/pooled_methylDB/methylDB 2016-12-31 JHP
+Read 0.0% of 36955591 rowsRead 3.9% of 36955591 rowsRead 7.9% of 36955591 rowsRead 11.9% of 36955591 rowsRead 15.8% of 36955591 rowsRead 19.8% of 36955591 rowsRead 23.7% of 36955591 rowsRead 27.5% of 36955591 rowsRead 31.4% of 36955591 rowsRead 35.2% of 36955591 rowsRead 38.9% of 36955591 rowsRead 42.8% of 36955591 rowsRead 46.8% of 36955591 rowsRead 50.7% of 36955591 rowsRead 54.6% of 36955591 rowsRead 58.5% of 36955591 rowsRead 62.3% of 36955591 rowsRead 66.2% of 36955591 rowsRead 70.1% of 36955591 rowsRead 73.9% of 36955591 rowsRead 77.9% of 36955591 rowsRead 81.8% of 36955591 rowsRead 85.7% of 36955591 rowsRead 89.6% of 36955591 rowsRead 93.5% of 36955591 rowsRead 97.4% of 36955591 rowsRead 36955591 rows and 6 (of 6) columns from 1.176 GB file in 00:00:38
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 37565808 rowsRead 4.0% of 37565808 rowsRead 7.8% of 37565808 rowsRead 11.6% of 37565808 rowsRead 15.4% of 37565808 rowsRead 19.3% of 37565808 rowsRead 23.2% of 37565808 rowsRead 27.0% of 37565808 rowsRead 30.8% of 37565808 rowsRead 34.6% of 37565808 rowsRead 38.4% of 37565808 rowsRead 42.4% of 37565808 rowsRead 46.2% of 37565808 rowsRead 50.0% of 37565808 rowsRead 53.9% of 37565808 rowsRead 57.7% of 37565808 rowsRead 61.5% of 37565808 rowsRead 65.4% of 37565808 rowsRead 69.2% of 37565808 rowsRead 73.0% of 37565808 rowsRead 76.9% of 37565808 rowsRead 80.6% of 37565808 rowsRead 84.3% of 37565808 rowsRead 88.0% of 37565808 rowsRead 91.8% of 37565808 rowsRead 95.7% of 37565808 rowsRead 99.6% of 37565808 rowsRead 37565808 rows and 6 (of 6) columns from 1.207 GB file in 00:00:33
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 37652974 rowsRead 3.9% of 37652974 rowsRead 7.8% of 37652974 rowsRead 11.6% of 37652974 rowsRead 15.4% of 37652974 rowsRead 19.3% of 37652974 rowsRead 23.1% of 37652974 rowsRead 27.0% of 37652974 rowsRead 30.8% of 37652974 rowsRead 34.7% of 37652974 rowsRead 38.6% of 37652974 rowsRead 42.5% of 37652974 rowsRead 46.4% of 37652974 rowsRead 50.3% of 37652974 rowsRead 54.2% of 37652974 rowsRead 58.0% of 37652974 rowsRead 61.9% of 37652974 rowsRead 65.8% of 37652974 rowsRead 69.7% of 37652974 rowsRead 73.6% of 37652974 rowsRead 77.5% of 37652974 rowsRead 81.2% of 37652974 rowsRead 84.9% of 37652974 rowsRead 88.6% of 37652974 rowsRead 92.6% of 37652974 rowsRead 96.5% of 37652974 rowsRead 37652974 rows and 6 (of 6) columns from 1.193 GB file in 00:00:33
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36514932 rowsRead 3.9% of 36514932 rowsRead 8.0% of 36514932 rowsRead 12.0% of 36514932 rowsRead 16.1% of 36514932 rowsRead 20.0% of 36514932 rowsRead 24.0% of 36514932 rowsRead 28.1% of 36514932 rowsRead 32.1% of 36514932 rowsRead 36.1% of 36514932 rowsRead 40.1% of 36514932 rowsRead 44.1% of 36514932 rowsRead 48.2% of 36514932 rowsRead 52.3% of 36514932 rowsRead 56.2% of 36514932 rowsRead 59.9% of 36514932 rowsRead 63.9% of 36514932 rowsRead 67.9% of 36514932 rowsRead 71.9% of 36514932 rowsRead 76.1% of 36514932 rowsRead 80.0% of 36514932 rowsRead 84.1% of 36514932 rowsRead 88.0% of 36514932 rowsRead 92.0% of 36514932 rowsRead 96.0% of 36514932 rowsRead 36514932 rows and 6 (of 6) columns from 1.151 GB file in 00:00:31
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 30437863 rowsRead 4.9% of 30437863 rowsRead 9.9% of 30437863 rowsRead 14.7% of 30437863 rowsRead 19.6% of 30437863 rowsRead 24.6% of 30437863 rowsRead 29.5% of 30437863 rowsRead 34.5% of 30437863 rowsRead 39.4% of 30437863 rowsRead 44.4% of 30437863 rowsRead 49.3% of 30437863 rowsRead 54.3% of 30437863 rowsRead 59.2% of 30437863 rowsRead 64.2% of 30437863 rowsRead 69.1% of 30437863 rowsRead 73.9% of 30437863 rowsRead 78.6% of 30437863 rowsRead 83.5% of 30437863 rowsRead 88.4% of 30437863 rowsRead 93.4% of 30437863 rowsRead 98.3% of 30437863 rowsRead 30437863 rows and 6 (of 6) columns from 0.925 GB file in 00:00:26
+compressing the file with bgzip...
+making tabix index...
+[1] "methylBaseDB files created!"
+Read 90.6% of 2526279 rowsRead 2526279 rows and 7 (of 7) columns from 0.076 GB file in 00:00:03
+Read 92.0% of 2674206 rowsRead 2674206 rows and 7 (of 7) columns from 0.081 GB file in 00:00:03
+Read 73.0% of 2000139 rowsRead 2000139 rows and 7 (of 7) columns from 0.060 GB file in 00:00:03
+Read 50.3% of 1331929 rowsRead 1331929 rows and 7 (of 7) columns from 0.040 GB file in 00:00:03
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 2572499 rowsRead 58.7% of 2572499 rowsRead 2572499 rows and 7 (of 7) columns from 0.077 GB file in 00:00:05
+Read 41.0% of 1731194 rowsRead 1731194 rows and 7 (of 7) columns from 0.053 GB file in 00:00:03
+Read 91.8% of 2713810 rowsRead 2713810 rows and 7 (of 7) columns from 0.082 GB file in 00:00:03
+Read 0.0% of 2360382 rowsRead 65.7% of 2360382 rowsRead 2360382 rows and 7 (of 7) columns from 0.071 GB file in 00:00:06
+Read 0.0% of 2160689 rowsRead 73.6% of 2160689 rowsRead 2160689 rows and 7 (of 7) columns from 0.065 GB file in 00:00:04
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 2579540 rowsRead 60.5% of 2579540 rowsRead 2579540 rows and 7 (of 7) columns from 0.077 GB file in 00:00:07
+Read 0.0% of 1947603 rowsRead 80.6% of 1947603 rowsRead 1947603 rows and 7 (of 7) columns from 0.059 GB file in 00:00:04
+Read 0.0% of 2172369 rowsRead 70.4% of 2172369 rowsRead 2172369 rows and 7 (of 7) columns from 0.066 GB file in 00:00:07
+Read 72.5% of 1558095 rowsRead 1558095 rows and 7 (of 7) columns from 0.047 GB file in 00:00:03
+Read 0.0% of 1547489 rowsRead 1547489 rows and 7 (of 7) columns from 0.046 GB file in 00:00:04
+Read 0.0% of 2720277 rowsRead 56.6% of 2720277 rowsRead 2720277 rows and 7 (of 7) columns from 0.082 GB file in 00:00:05
+Read 67.0% of 2045422 rowsRead 2045422 rows and 7 (of 7) columns from 0.061 GB file in 00:00:03
+Read 0.0% of 1336685 rowsRead 1336685 rows and 7 (of 7) columns from 0.040 GB file in 00:00:04
+compressing the file with bgzip...
+making tabix index...
+Read 38.6% of 2126545 rowsRead 2126545 rows and 7 (of 7) columns from 0.065 GB file in 00:00:03
+Read 91.2% of 1513174 rowsRead 1513174 rows and 7 (of 7) columns from 0.046 GB file in 00:00:03
+Read 95.0% of 2641822 rowsRead 2641822 rows and 7 (of 7) columns from 0.080 GB file in 00:00:03
+Read 13.7% of 1970440 rowsRead 91.4% of 1970440 rowsRead 1970440 rows and 7 (of 7) columns from 0.059 GB file in 00:00:04
+Read 0.0% of 2362688 rowsRead 64.8% of 2362688 rowsRead 2362688 rows and 7 (of 7) columns from 0.071 GB file in 00:00:05
+Read 50.8% of 2105070 rowsRead 2105070 rows and 7 (of 7) columns from 0.063 GB file in 00:00:03
+Read 0.0% of 1978087 rowsRead 79.4% of 1978087 rowsRead 1978087 rows and 7 (of 7) columns from 0.059 GB file in 00:00:04
+compressing the file with bgzip...
+making tabix index...
+Read 99.6% of 1345474 rowsRead 1345474 rows and 7 (of 7) columns from 0.041 GB file in 00:00:03
+Read 0.0% of 1279505 rowsRead 1279505 rows and 7 (of 7) columns from 0.038 GB file in 00:00:04
+Read 44.1% of 1997030 rowsRead 1997030 rows and 7 (of 7) columns from 0.060 GB file in 00:00:03
+Read 9.5% of 1794261 rowsRead 97.5% of 1794261 rowsRead 1794261 rows and 7 (of 7) columns from 0.053 GB file in 00:00:04
+compressing the file with bgzip...
+making tabix index...
+[1] "tileDB files created!"
+Read 0.0% of 36955591 rowsRead 4.3% of 36955591 rowsRead 8.5% of 36955591 rowsRead 12.6% of 36955591 rowsRead 16.7% of 36955591 rowsRead 20.9% of 36955591 rowsRead 25.0% of 36955591 rowsRead 29.2% of 36955591 rowsRead 33.3% of 36955591 rowsRead 37.5% of 36955591 rowsRead 41.6% of 36955591 rowsRead 45.8% of 36955591 rowsRead 50.0% of 36955591 rowsRead 54.2% of 36955591 rowsRead 58.4% of 36955591 rowsRead 62.6% of 36955591 rowsRead 66.8% of 36955591 rowsRead 71.0% of 36955591 rowsRead 75.1% of 36955591 rowsRead 79.4% of 36955591 rowsRead 83.6% of 36955591 rowsRead 87.8% of 36955591 rowsRead 92.0% of 36955591 rowsRead 96.2% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:01:04
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.4% of 37565808 rowsRead 12.4% of 37565808 rowsRead 16.5% of 37565808 rowsRead 20.6% of 37565808 rowsRead 24.7% of 37565808 rowsRead 28.7% of 37565808 rowsRead 32.8% of 37565808 rowsRead 36.9% of 37565808 rowsRead 41.0% of 37565808 rowsRead 45.1% of 37565808 rowsRead 49.2% of 37565808 rowsRead 53.5% of 37565808 rowsRead 57.6% of 37565808 rowsRead 61.7% of 37565808 rowsRead 65.7% of 37565808 rowsRead 69.7% of 37565808 rowsRead 73.9% of 37565808 rowsRead 78.0% of 37565808 rowsRead 82.2% of 37565808 rowsRead 86.4% of 37565808 rowsRead 90.5% of 37565808 rowsRead 94.5% of 37565808 rowsRead 98.6% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.3% of 37652974 rowsRead 12.4% of 37652974 rowsRead 16.4% of 37652974 rowsRead 20.5% of 37652974 rowsRead 24.5% of 37652974 rowsRead 28.6% of 37652974 rowsRead 32.6% of 37652974 rowsRead 36.7% of 37652974 rowsRead 40.7% of 37652974 rowsRead 44.8% of 37652974 rowsRead 48.8% of 37652974 rowsRead 53.0% of 37652974 rowsRead 57.2% of 37652974 rowsRead 61.2% of 37652974 rowsRead 65.4% of 37652974 rowsRead 69.5% of 37652974 rowsRead 73.6% of 37652974 rowsRead 77.8% of 37652974 rowsRead 81.9% of 37652974 rowsRead 86.0% of 37652974 rowsRead 90.1% of 37652974 rowsRead 94.1% of 37652974 rowsRead 98.1% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:00:54
+Read 0.0% of 36514932 rowsRead 4.3% of 36514932 rowsRead 8.6% of 36514932 rowsRead 12.8% of 36514932 rowsRead 17.0% of 36514932 rowsRead 21.2% of 36514932 rowsRead 25.4% of 36514932 rowsRead 29.6% of 36514932 rowsRead 33.8% of 36514932 rowsRead 38.0% of 36514932 rowsRead 42.3% of 36514932 rowsRead 46.6% of 36514932 rowsRead 50.9% of 36514932 rowsRead 55.2% of 36514932 rowsRead 59.5% of 36514932 rowsRead 63.8% of 36514932 rowsRead 68.0% of 36514932 rowsRead 72.2% of 36514932 rowsRead 76.4% of 36514932 rowsRead 80.6% of 36514932 rowsRead 84.8% of 36514932 rowsRead 89.0% of 36514932 rowsRead 93.1% of 36514932 rowsRead 97.4% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:00:30
+Read 0.0% of 30437863 rowsRead 5.1% of 30437863 rowsRead 10.2% of 30437863 rowsRead 15.3% of 30437863 rowsRead 20.4% of 30437863 rowsRead 25.6% of 30437863 rowsRead 30.7% of 30437863 rowsRead 35.7% of 30437863 rowsRead 40.9% of 30437863 rowsRead 46.0% of 30437863 rowsRead 51.2% of 30437863 rowsRead 56.3% of 30437863 rowsRead 61.5% of 30437863 rowsRead 66.6% of 30437863 rowsRead 71.8% of 30437863 rowsRead 77.0% of 30437863 rowsRead 82.1% of 30437863 rowsRead 87.3% of 30437863 rowsRead 92.4% of 30437863 rowsRead 97.4% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:00:25
+creating directory /pool.baseCov0.regionCov5.CTCF Binding Site...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36955591 rowsRead 4.3% of 36955591 rowsRead 8.4% of 36955591 rowsRead 12.6% of 36955591 rowsRead 16.6% of 36955591 rowsRead 20.8% of 36955591 rowsRead 24.9% of 36955591 rowsRead 29.0% of 36955591 rowsRead 33.1% of 36955591 rowsRead 37.2% of 36955591 rowsRead 41.3% of 36955591 rowsRead 45.5% of 36955591 rowsRead 49.6% of 36955591 rowsRead 53.8% of 36955591 rowsRead 58.1% of 36955591 rowsRead 62.3% of 36955591 rowsRead 66.5% of 36955591 rowsRead 70.7% of 36955591 rowsRead 74.8% of 36955591 rowsRead 79.0% of 36955591 rowsRead 83.2% of 36955591 rowsRead 87.4% of 36955591 rowsRead 91.6% of 36955591 rowsRead 95.8% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:00:40
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.3% of 37565808 rowsRead 12.4% of 37565808 rowsRead 16.5% of 37565808 rowsRead 20.6% of 37565808 rowsRead 24.7% of 37565808 rowsRead 28.7% of 37565808 rowsRead 32.8% of 37565808 rowsRead 36.9% of 37565808 rowsRead 40.9% of 37565808 rowsRead 45.1% of 37565808 rowsRead 49.2% of 37565808 rowsRead 53.3% of 37565808 rowsRead 57.4% of 37565808 rowsRead 61.5% of 37565808 rowsRead 65.5% of 37565808 rowsRead 69.5% of 37565808 rowsRead 73.6% of 37565808 rowsRead 77.8% of 37565808 rowsRead 81.9% of 37565808 rowsRead 86.1% of 37565808 rowsRead 90.2% of 37565808 rowsRead 94.2% of 37565808 rowsRead 98.3% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:59
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.4% of 37652974 rowsRead 12.4% of 37652974 rowsRead 16.5% of 37652974 rowsRead 20.6% of 37652974 rowsRead 24.7% of 37652974 rowsRead 28.8% of 37652974 rowsRead 32.8% of 37652974 rowsRead 36.9% of 37652974 rowsRead 41.0% of 37652974 rowsRead 45.1% of 37652974 rowsRead 49.2% of 37652974 rowsRead 53.4% of 37652974 rowsRead 57.6% of 37652974 rowsRead 61.7% of 37652974 rowsRead 65.8% of 37652974 rowsRead 70.0% of 37652974 rowsRead 74.1% of 37652974 rowsRead 78.3% of 37652974 rowsRead 82.5% of 37652974 rowsRead 86.6% of 37652974 rowsRead 90.7% of 37652974 rowsRead 94.7% of 37652974 rowsRead 98.9% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:01:10
+Read 0.0% of 36514932 rowsRead 4.3% of 36514932 rowsRead 8.5% of 36514932 rowsRead 12.8% of 36514932 rowsRead 16.9% of 36514932 rowsRead 21.1% of 36514932 rowsRead 25.3% of 36514932 rowsRead 29.5% of 36514932 rowsRead 33.7% of 36514932 rowsRead 38.0% of 36514932 rowsRead 42.2% of 36514932 rowsRead 46.4% of 36514932 rowsRead 50.7% of 36514932 rowsRead 55.0% of 36514932 rowsRead 59.3% of 36514932 rowsRead 63.6% of 36514932 rowsRead 67.8% of 36514932 rowsRead 72.0% of 36514932 rowsRead 76.1% of 36514932 rowsRead 80.4% of 36514932 rowsRead 84.6% of 36514932 rowsRead 88.7% of 36514932 rowsRead 92.9% of 36514932 rowsRead 97.1% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:00:50
+Read 0.0% of 30437863 rowsRead 5.1% of 30437863 rowsRead 10.2% of 30437863 rowsRead 15.3% of 30437863 rowsRead 20.4% of 30437863 rowsRead 25.5% of 30437863 rowsRead 30.5% of 30437863 rowsRead 35.6% of 30437863 rowsRead 40.8% of 30437863 rowsRead 45.8% of 30437863 rowsRead 51.0% of 30437863 rowsRead 56.1% of 30437863 rowsRead 61.3% of 30437863 rowsRead 66.4% of 30437863 rowsRead 71.6% of 30437863 rowsRead 76.8% of 30437863 rowsRead 82.0% of 30437863 rowsRead 87.1% of 30437863 rowsRead 92.2% of 30437863 rowsRead 97.3% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:00:58
+creating directory /pool.baseCov0.regionCov5.Enhancer...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36955591 rowsRead 4.2% of 36955591 rowsRead 8.4% of 36955591 rowsRead 12.6% of 36955591 rowsRead 16.7% of 36955591 rowsRead 20.8% of 36955591 rowsRead 24.9% of 36955591 rowsRead 29.0% of 36955591 rowsRead 33.1% of 36955591 rowsRead 37.2% of 36955591 rowsRead 41.3% of 36955591 rowsRead 45.5% of 36955591 rowsRead 49.7% of 36955591 rowsRead 53.9% of 36955591 rowsRead 58.1% of 36955591 rowsRead 62.3% of 36955591 rowsRead 66.5% of 36955591 rowsRead 70.7% of 36955591 rowsRead 74.8% of 36955591 rowsRead 79.0% of 36955591 rowsRead 83.3% of 36955591 rowsRead 87.5% of 36955591 rowsRead 91.7% of 36955591 rowsRead 95.8% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:01:06
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.4% of 37565808 rowsRead 12.5% of 37565808 rowsRead 16.6% of 37565808 rowsRead 20.7% of 37565808 rowsRead 24.8% of 37565808 rowsRead 28.8% of 37565808 rowsRead 32.9% of 37565808 rowsRead 37.1% of 37565808 rowsRead 41.2% of 37565808 rowsRead 45.3% of 37565808 rowsRead 49.5% of 37565808 rowsRead 53.7% of 37565808 rowsRead 57.8% of 37565808 rowsRead 61.8% of 37565808 rowsRead 65.9% of 37565808 rowsRead 70.0% of 37565808 rowsRead 74.1% of 37565808 rowsRead 78.3% of 37565808 rowsRead 82.5% of 37565808 rowsRead 86.6% of 37565808 rowsRead 90.7% of 37565808 rowsRead 94.8% of 37565808 rowsRead 98.9% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.3% of 37652974 rowsRead 12.4% of 37652974 rowsRead 16.5% of 37652974 rowsRead 20.6% of 37652974 rowsRead 24.7% of 37652974 rowsRead 28.8% of 37652974 rowsRead 32.9% of 37652974 rowsRead 36.9% of 37652974 rowsRead 41.0% of 37652974 rowsRead 45.1% of 37652974 rowsRead 49.2% of 37652974 rowsRead 53.4% of 37652974 rowsRead 57.5% of 37652974 rowsRead 61.6% of 37652974 rowsRead 65.8% of 37652974 rowsRead 69.9% of 37652974 rowsRead 74.0% of 37652974 rowsRead 78.2% of 37652974 rowsRead 82.4% of 37652974 rowsRead 86.6% of 37652974 rowsRead 90.6% of 37652974 rowsRead 94.6% of 37652974 rowsRead 98.8% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 36514932 rowsRead 4.3% of 36514932 rowsRead 8.6% of 36514932 rowsRead 12.8% of 36514932 rowsRead 17.0% of 36514932 rowsRead 21.1% of 36514932 rowsRead 25.4% of 36514932 rowsRead 29.5% of 36514932 rowsRead 33.8% of 36514932 rowsRead 38.0% of 36514932 rowsRead 42.2% of 36514932 rowsRead 46.5% of 36514932 rowsRead 50.8% of 36514932 rowsRead 55.1% of 36514932 rowsRead 59.4% of 36514932 rowsRead 63.6% of 36514932 rowsRead 67.9% of 36514932 rowsRead 72.0% of 36514932 rowsRead 76.2% of 36514932 rowsRead 80.4% of 36514932 rowsRead 84.6% of 36514932 rowsRead 88.8% of 36514932 rowsRead 92.9% of 36514932 rowsRead 97.2% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:00:30
+Read 0.0% of 30437863 rowsRead 5.1% of 30437863 rowsRead 10.2% of 30437863 rowsRead 15.3% of 30437863 rowsRead 20.3% of 30437863 rowsRead 25.4% of 30437863 rowsRead 30.4% of 30437863 rowsRead 35.5% of 30437863 rowsRead 40.6% of 30437863 rowsRead 45.7% of 30437863 rowsRead 50.8% of 30437863 rowsRead 55.9% of 30437863 rowsRead 61.1% of 30437863 rowsRead 66.2% of 30437863 rowsRead 71.4% of 30437863 rowsRead 76.5% of 30437863 rowsRead 81.7% of 30437863 rowsRead 86.8% of 30437863 rowsRead 91.9% of 30437863 rowsRead 96.9% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:01:05
+creating directory /pool.baseCov0.regionCov5.Open chromatin...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36955591 rowsRead 4.2% of 36955591 rowsRead 8.5% of 36955591 rowsRead 12.6% of 36955591 rowsRead 16.7% of 36955591 rowsRead 20.8% of 36955591 rowsRead 25.0% of 36955591 rowsRead 29.1% of 36955591 rowsRead 33.2% of 36955591 rowsRead 37.3% of 36955591 rowsRead 41.3% of 36955591 rowsRead 45.5% of 36955591 rowsRead 49.7% of 36955591 rowsRead 54.0% of 36955591 rowsRead 58.2% of 36955591 rowsRead 62.3% of 36955591 rowsRead 66.5% of 36955591 rowsRead 70.7% of 36955591 rowsRead 74.8% of 36955591 rowsRead 79.0% of 36955591 rowsRead 83.3% of 36955591 rowsRead 87.5% of 36955591 rowsRead 91.7% of 36955591 rowsRead 95.8% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:01:11
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.3% of 37565808 rowsRead 12.4% of 37565808 rowsRead 16.5% of 37565808 rowsRead 20.6% of 37565808 rowsRead 24.7% of 37565808 rowsRead 28.7% of 37565808 rowsRead 32.8% of 37565808 rowsRead 36.9% of 37565808 rowsRead 41.0% of 37565808 rowsRead 45.1% of 37565808 rowsRead 49.2% of 37565808 rowsRead 53.4% of 37565808 rowsRead 57.5% of 37565808 rowsRead 61.5% of 37565808 rowsRead 65.5% of 37565808 rowsRead 69.5% of 37565808 rowsRead 73.6% of 37565808 rowsRead 77.8% of 37565808 rowsRead 81.9% of 37565808 rowsRead 86.1% of 37565808 rowsRead 90.1% of 37565808 rowsRead 94.2% of 37565808 rowsRead 98.2% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.3% of 37652974 rowsRead 12.3% of 37652974 rowsRead 16.4% of 37652974 rowsRead 20.5% of 37652974 rowsRead 24.5% of 37652974 rowsRead 28.6% of 37652974 rowsRead 32.6% of 37652974 rowsRead 36.7% of 37652974 rowsRead 40.8% of 37652974 rowsRead 44.8% of 37652974 rowsRead 48.9% of 37652974 rowsRead 53.1% of 37652974 rowsRead 57.3% of 37652974 rowsRead 61.3% of 37652974 rowsRead 65.5% of 37652974 rowsRead 69.5% of 37652974 rowsRead 73.6% of 37652974 rowsRead 77.8% of 37652974 rowsRead 82.0% of 37652974 rowsRead 86.1% of 37652974 rowsRead 90.2% of 37652974 rowsRead 94.1% of 37652974 rowsRead 98.3% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:01:36
+Read 0.0% of 36514932 rowsRead 4.3% of 36514932 rowsRead 8.6% of 36514932 rowsRead 12.8% of 36514932 rowsRead 17.0% of 36514932 rowsRead 21.1% of 36514932 rowsRead 25.4% of 36514932 rowsRead 29.5% of 36514932 rowsRead 33.7% of 36514932 rowsRead 37.9% of 36514932 rowsRead 42.2% of 36514932 rowsRead 46.4% of 36514932 rowsRead 50.7% of 36514932 rowsRead 55.0% of 36514932 rowsRead 59.3% of 36514932 rowsRead 63.5% of 36514932 rowsRead 67.8% of 36514932 rowsRead 71.9% of 36514932 rowsRead 76.1% of 36514932 rowsRead 80.3% of 36514932 rowsRead 84.5% of 36514932 rowsRead 88.7% of 36514932 rowsRead 92.8% of 36514932 rowsRead 97.0% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:00:30
+Read 0.0% of 30437863 rowsRead 5.2% of 30437863 rowsRead 10.3% of 30437863 rowsRead 15.4% of 30437863 rowsRead 20.5% of 30437863 rowsRead 25.6% of 30437863 rowsRead 30.7% of 30437863 rowsRead 35.8% of 30437863 rowsRead 40.9% of 30437863 rowsRead 46.0% of 30437863 rowsRead 51.1% of 30437863 rowsRead 56.2% of 30437863 rowsRead 61.5% of 30437863 rowsRead 66.7% of 30437863 rowsRead 71.9% of 30437863 rowsRead 77.0% of 30437863 rowsRead 82.2% of 30437863 rowsRead 87.3% of 30437863 rowsRead 92.4% of 30437863 rowsRead 97.4% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:00:25
+creating directory /pool.baseCov0.regionCov5.Promoter...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36955591 rowsRead 4.2% of 36955591 rowsRead 8.4% of 36955591 rowsRead 12.6% of 36955591 rowsRead 16.7% of 36955591 rowsRead 20.8% of 36955591 rowsRead 25.0% of 36955591 rowsRead 29.0% of 36955591 rowsRead 33.1% of 36955591 rowsRead 37.2% of 36955591 rowsRead 41.3% of 36955591 rowsRead 45.5% of 36955591 rowsRead 49.7% of 36955591 rowsRead 53.9% of 36955591 rowsRead 58.1% of 36955591 rowsRead 62.3% of 36955591 rowsRead 66.5% of 36955591 rowsRead 70.7% of 36955591 rowsRead 74.9% of 36955591 rowsRead 79.0% of 36955591 rowsRead 83.3% of 36955591 rowsRead 87.5% of 36955591 rowsRead 91.7% of 36955591 rowsRead 95.8% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:00:40
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.3% of 37565808 rowsRead 12.4% of 37565808 rowsRead 16.6% of 37565808 rowsRead 20.7% of 37565808 rowsRead 24.8% of 37565808 rowsRead 28.9% of 37565808 rowsRead 32.9% of 37565808 rowsRead 37.1% of 37565808 rowsRead 41.2% of 37565808 rowsRead 45.3% of 37565808 rowsRead 49.4% of 37565808 rowsRead 53.6% of 37565808 rowsRead 57.7% of 37565808 rowsRead 61.8% of 37565808 rowsRead 65.8% of 37565808 rowsRead 69.9% of 37565808 rowsRead 74.0% of 37565808 rowsRead 78.2% of 37565808 rowsRead 82.4% of 37565808 rowsRead 86.6% of 37565808 rowsRead 90.6% of 37565808 rowsRead 94.7% of 37565808 rowsRead 98.8% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.3% of 37652974 rowsRead 12.4% of 37652974 rowsRead 16.5% of 37652974 rowsRead 20.6% of 37652974 rowsRead 24.6% of 37652974 rowsRead 28.7% of 37652974 rowsRead 32.8% of 37652974 rowsRead 36.8% of 37652974 rowsRead 40.9% of 37652974 rowsRead 45.0% of 37652974 rowsRead 49.1% of 37652974 rowsRead 53.3% of 37652974 rowsRead 57.4% of 37652974 rowsRead 61.5% of 37652974 rowsRead 65.7% of 37652974 rowsRead 69.8% of 37652974 rowsRead 74.0% of 37652974 rowsRead 78.1% of 37652974 rowsRead 82.4% of 37652974 rowsRead 86.5% of 37652974 rowsRead 90.5% of 37652974 rowsRead 94.6% of 37652974 rowsRead 98.7% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 36514932 rowsRead 4.4% of 36514932 rowsRead 8.6% of 36514932 rowsRead 12.8% of 36514932 rowsRead 17.0% of 36514932 rowsRead 21.2% of 36514932 rowsRead 25.4% of 36514932 rowsRead 29.6% of 36514932 rowsRead 33.8% of 36514932 rowsRead 38.1% of 36514932 rowsRead 42.3% of 36514932 rowsRead 46.6% of 36514932 rowsRead 50.9% of 36514932 rowsRead 55.2% of 36514932 rowsRead 59.5% of 36514932 rowsRead 63.7% of 36514932 rowsRead 67.9% of 36514932 rowsRead 72.1% of 36514932 rowsRead 76.3% of 36514932 rowsRead 80.5% of 36514932 rowsRead 84.7% of 36514932 rowsRead 88.8% of 36514932 rowsRead 93.1% of 36514932 rowsRead 97.3% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:00:30
+Read 0.0% of 30437863 rowsRead 5.2% of 30437863 rowsRead 10.3% of 30437863 rowsRead 15.3% of 30437863 rowsRead 20.4% of 30437863 rowsRead 25.6% of 30437863 rowsRead 30.6% of 30437863 rowsRead 35.8% of 30437863 rowsRead 40.9% of 30437863 rowsRead 46.0% of 30437863 rowsRead 51.1% of 30437863 rowsRead 56.2% of 30437863 rowsRead 61.4% of 30437863 rowsRead 66.6% of 30437863 rowsRead 71.7% of 30437863 rowsRead 76.9% of 30437863 rowsRead 82.1% of 30437863 rowsRead 87.2% of 30437863 rowsRead 92.3% of 30437863 rowsRead 97.4% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:00:25
+creating directory /pool.baseCov0.regionCov5.Promoter Flanking Region...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+Read 0.0% of 36955591 rowsRead 4.2% of 36955591 rowsRead 8.4% of 36955591 rowsRead 12.5% of 36955591 rowsRead 16.7% of 36955591 rowsRead 20.8% of 36955591 rowsRead 24.9% of 36955591 rowsRead 29.0% of 36955591 rowsRead 33.1% of 36955591 rowsRead 37.2% of 36955591 rowsRead 41.3% of 36955591 rowsRead 45.4% of 36955591 rowsRead 49.6% of 36955591 rowsRead 53.8% of 36955591 rowsRead 58.0% of 36955591 rowsRead 62.2% of 36955591 rowsRead 66.3% of 36955591 rowsRead 70.5% of 36955591 rowsRead 74.6% of 36955591 rowsRead 78.8% of 36955591 rowsRead 83.0% of 36955591 rowsRead 87.2% of 36955591 rowsRead 91.4% of 36955591 rowsRead 95.5% of 36955591 rowsRead 99.7% of 36955591 rowsRead 36955591 rows and 7 (of 7) columns from 1.112 GB file in 00:01:08
+Read 0.0% of 37565808 rowsRead 4.2% of 37565808 rowsRead 8.4% of 37565808 rowsRead 12.4% of 37565808 rowsRead 16.6% of 37565808 rowsRead 20.7% of 37565808 rowsRead 24.8% of 37565808 rowsRead 28.9% of 37565808 rowsRead 33.0% of 37565808 rowsRead 37.1% of 37565808 rowsRead 41.2% of 37565808 rowsRead 45.3% of 37565808 rowsRead 49.4% of 37565808 rowsRead 53.6% of 37565808 rowsRead 57.8% of 37565808 rowsRead 61.9% of 37565808 rowsRead 65.9% of 37565808 rowsRead 70.0% of 37565808 rowsRead 74.1% of 37565808 rowsRead 78.3% of 37565808 rowsRead 82.5% of 37565808 rowsRead 86.7% of 37565808 rowsRead 90.8% of 37565808 rowsRead 94.8% of 37565808 rowsRead 99.0% of 37565808 rowsRead 37565808 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 37652974 rowsRead 4.2% of 37652974 rowsRead 8.3% of 37652974 rowsRead 12.4% of 37652974 rowsRead 16.5% of 37652974 rowsRead 20.6% of 37652974 rowsRead 24.7% of 37652974 rowsRead 28.8% of 37652974 rowsRead 32.8% of 37652974 rowsRead 36.9% of 37652974 rowsRead 41.0% of 37652974 rowsRead 45.0% of 37652974 rowsRead 49.2% of 37652974 rowsRead 53.4% of 37652974 rowsRead 57.5% of 37652974 rowsRead 61.6% of 37652974 rowsRead 65.8% of 37652974 rowsRead 69.9% of 37652974 rowsRead 74.0% of 37652974 rowsRead 78.2% of 37652974 rowsRead 82.4% of 37652974 rowsRead 86.6% of 37652974 rowsRead 90.6% of 37652974 rowsRead 94.7% of 37652974 rowsRead 98.8% of 37652974 rowsRead 37652974 rows and 7 (of 7) columns from 1.131 GB file in 00:00:31
+Read 0.0% of 36514932 rowsRead 4.4% of 36514932 rowsRead 8.6% of 36514932 rowsRead 12.8% of 36514932 rowsRead 17.0% of 36514932 rowsRead 21.1% of 36514932 rowsRead 25.3% of 36514932 rowsRead 29.5% of 36514932 rowsRead 33.7% of 36514932 rowsRead 37.9% of 36514932 rowsRead 42.1% of 36514932 rowsRead 46.4% of 36514932 rowsRead 50.6% of 36514932 rowsRead 54.9% of 36514932 rowsRead 59.2% of 36514932 rowsRead 63.4% of 36514932 rowsRead 67.7% of 36514932 rowsRead 71.9% of 36514932 rowsRead 76.0% of 36514932 rowsRead 80.2% of 36514932 rowsRead 84.4% of 36514932 rowsRead 88.5% of 36514932 rowsRead 92.7% of 36514932 rowsRead 96.9% of 36514932 rowsRead 36514932 rows and 7 (of 7) columns from 1.098 GB file in 00:01:07
+Read 0.0% of 30437863 rowsRead 5.2% of 30437863 rowsRead 10.2% of 30437863 rowsRead 15.3% of 30437863 rowsRead 20.4% of 30437863 rowsRead 25.6% of 30437863 rowsRead 30.7% of 30437863 rowsRead 35.8% of 30437863 rowsRead 40.9% of 30437863 rowsRead 46.0% of 30437863 rowsRead 51.2% of 30437863 rowsRead 56.2% of 30437863 rowsRead 61.4% of 30437863 rowsRead 66.6% of 30437863 rowsRead 71.7% of 30437863 rowsRead 76.9% of 30437863 rowsRead 82.0% of 30437863 rowsRead 87.2% of 30437863 rowsRead 92.3% of 30437863 rowsRead 97.3% of 30437863 rowsRead 30437863 rows and 7 (of 7) columns from 0.909 GB file in 00:01:04
+creating directory /pool.baseCov0.regionCov5.TF binding site...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+compressing the file with bgzip...
+making tabix index...
+[1] "regionDB files created!"
+[1] "dmr calculated!"
+[1] "CTCF Binding Site"
+[1] "dd"
+[1] "dmr calculated!"
+[1] "Enhancer"
+[1] "dd"
+[1] "dmr calculated!"
+[1] "Open chromatin"
+[1] "dd"
+[1] "dmr calculated!"
+[1] "Promoter"
+[1] "dd"
+[1] "dmr calculated!"
+[1] "Promoter Flanking Region"
+[1] "dd"
+[1] "dmr calculated!"
+[1] "TF binding site"
+[1] "dd"
+[1] "dmr calculated!"
+There were 50 or more warnings (use warnings() to see the first 50)
