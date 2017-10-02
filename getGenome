@@ -1,0 +1,6 @@
+Ensembl http://www.ensembl.org/info/data/ftp/index.html
+Gencode http://www.gencodegenes.org/
+# get genome fasta sequence
+wget ftp://ftp.ensembl.org/pub/release-90/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz
+# get RefSeq genes annotation
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.107/GFF/ref_GRCh38.p2_top_level.gff3.gz
