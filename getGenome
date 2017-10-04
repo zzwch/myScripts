@@ -4,3 +4,15 @@ Gencode http://www.gencodegenes.org/
 wget ftp://ftp.ensembl.org/pub/release-90/fasta/mus_musculus/dna/Mus_musculus.GRCm38.dna.primary_assembly.fa.gz
 # get RefSeq genes annotation
 wget ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.107/GFF/ref_GRCh38.p2_top_level.gff3.gz
+
+######################
+# Build hisat2 index
+#####################
+hisat2-build -p 30 genome.fa genome
+# or you can add transcriptome info to index by doing
+extract_splice_sites.py transcripts.gtf > transcripts.ss
+extract_exons.py transcripts.gtf > transcripts.exon
+hisat2-build -p 30 --ss transcripts.ss --exon transcripts.exon genome.fa genome.trans
+
+
+
