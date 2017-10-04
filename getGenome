@@ -5,6 +5,9 @@ wget ftp://ftp.ensembl.org/pub/release-90/fasta/mus_musculus/dna/Mus_musculus.GR
 # get RefSeq genes annotation
 wget ftp://ftp.ncbi.nlm.nih.gov/genomes/H_sapiens/ARCHIVE/ANNOTATION_RELEASE.107/GFF/ref_GRCh38.p2_top_level.gff3.gz
 
+## Given our limited computing resource of our labServer "DELL T630" -- 56PC 256GB,
+## I choose to use HISAT2 (told 50 times faster) as mapper instead of Tophat2. 
+
 ######################
 # Build hisat2 index
 #####################
