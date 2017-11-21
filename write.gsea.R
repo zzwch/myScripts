@@ -1,3 +1,6 @@
+############################################################################
+# Produce phenotype (.cls) and dataset (.txt) files for GSEA-java analysis
+############################################################################
 # expr - gene expression matrix with genes in rownames, samples in colnames
 #        should be data.frame or matrix.
 #        only samples in rownames(annot) will be used.
