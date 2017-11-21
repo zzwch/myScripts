@@ -1,3 +1,10 @@
+# expr - gene expression matrix with genes in rownames, samples in colnames
+#        should be data.frame or matrix.
+#        only samples in rownames(annot) will be used.
+# annot - sample annotation matrix with samples in rownames, annotations in colnames
+#         should be data.frame or matrix
+# filenames.prefix - prefix used for saved files        
+# add.sys.time - add string derived from Sys.time() to the end of filenames of saved files 
 write.gsea <- function(expr, annot, filename.prefix = "gsea", add.sys.time = T){
   suffix <- ifelse(add.sys.time, Sys.time(), "")
   filename.dataset <- paste(filename.prefix, suffix, "txt",sep = ".")
