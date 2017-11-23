@@ -1,8 +1,7 @@
 # 查杀挖矿机进程md
 
 `[root@localhost]# top` 查看到md（占用cpu近100%）的PID 4444  
-`[root@localhost]# cd /proc/4444`  
-```
+```[root@localhost]# cd /proc/4444
 [root@localhost]# ll
 -r--------. 1 Hazard Liulab        304 Nov 22 20:24 auxv
 --w-------. 1 Hazard Liulab          0 Nov 22 20:24 clear_refs
@@ -33,9 +32,9 @@ lrwxrwxrwx. 1 Hazard Liulab          1 Nov 22 20:24 root -> /
 重点关注cmdline 和 exe,cwd 等  
 cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)  
 exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)  
-`[root@localhost]# cat cmdline`   
-这里看到如下字样，pool.minexmr.com 基本上跟挖矿有关了    
+`[root@localhost]# cat cmdline`      
 `-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`   
+这里看到这些字样，pool.minexmr.com 基本上跟挖矿有关了   
 ```
 [root@localhost]# cd /lib/modules/.z/
 [root@localhost .z]# ll
@@ -50,7 +49,7 @@ exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)
 -rw-r--r--. 1 root root    4833 Nov 23 16:24 screenlog.0
 -rwxr-xr-x. 1 root root      24 Oct  5 02:45 x
 ```   
-ll结果如下，h32,h64,md,mdx都是二进制文件  
+ h32,h64,md,mdx都是二进制文件  
  我们可以从a, run, x 三个文件里看到些端倪  
 ```
 [root@localhost .z]# cat a 
@@ -91,8 +90,8 @@ elif [ "$ARCH" == "x86_64" ];   then
 fi
 echo $! > bash.pid
 ```
-`[root@localhost .z]# cat x`  
 ```
+[root@localhost .z]# cat x
 nohup ./a >>/dev/null &
 ```
 -------------
