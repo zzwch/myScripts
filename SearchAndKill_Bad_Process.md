@@ -1,6 +1,9 @@
 # 查杀挖矿机进程md
 
-`[root@localhost]# top` 查看到md（占用cpu近100%）的PID， 4444（假设是这个数字）
+```
+[root@localhost]# top
+```
+查看到md（占用cpu近100%）的PID， 4444（假设是这个数字）
 ```
 [root@localhost]# cd /proc/4444
 [root@localhost 4444]# ll
