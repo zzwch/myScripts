@@ -1,11 +1,8 @@
 # 查杀挖矿机进程md
-
+用`top`命令查看到md（占用cpu近100%）的PID是4444（假设是这个数字）
+每个PID都会有文件夹/proc/PID, 所以
 ```
-[root@localhost]# top
-```
-查看到md（占用cpu近100%）的PID， 4444（假设是这个数字）
-```
-[root@localhost]# cd /proc/4444
+[root@localhost ~]# cd /proc/4444
 [root@localhost 4444]# ll
 -r--------. 1 Hazard Liulab        304 Nov 22 20:24 auxv
 --w-------. 1 Hazard Liulab          0 Nov 22 20:24 clear_refs
