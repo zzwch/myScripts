@@ -2,7 +2,34 @@
 
 `[root@localhost]# top` 查看到md（占用cpu近100%）的PID 4444  
 `[root@localhost]# cd /proc/4444`  
-`[root@localhost]# ll`  
+```
+[root@localhost]# ll
+-r--------. 1 Hazard Liulab        304 Nov 22 20:24 auxv
+--w-------. 1 Hazard Liulab          0 Nov 22 20:24 clear_refs
+-r--r--r--. 1 Hazard Liulab        414 Nov 22 20:24 cmdline
+-rw-r--r--. 1 Hazard Liulab          3 Nov 22 20:24 comm
+lrwxrwxrwx. 1 Hazard Liulab         15 Nov 22 20:24 cwd -> /lib/modules/.z
+-r--------. 1 Hazard Liulab       3799 Nov 22 20:24 environ
+lrwxrwxrwx. 1 Hazard Liulab         18 Nov 22 20:24 exe -> /lib/modules/.z/md
+dr-x------. 2 Hazard Liulab       4096 Nov 22 20:24 fd
+dr-x------. 2 Hazard Liulab       4096 Nov 22 20:24 fdinfo
+-rw-------. 1 Hazard Liulab       1323 Nov 22 20:24 limits
+-r--r--r--. 1 Hazard Liulab      16529 Nov 22 20:24 maps
+-rw-------. 1 Hazard Liulab          0 Nov 22 20:24 mem
+-r--r--r--. 1 Hazard Liulab       1489 Nov 22 20:24 mountinfo
+-r--r--r--. 1 Hazard Liulab       1278 Nov 22 20:24 mounts
+dr-x--x--x. 2 Hazard Liulab       4096 Nov 22 20:24 ns
+-r--r--r--. 1 Hazard Liulab      10351 Nov 22 20:24 numa_maps
+-r--r--r--. 1 Hazard Liulab 2823852032 Nov 22 20:24 pagemap
+-r--r--r--. 1 Hazard Liulab          9 Nov 22 20:24 personality
+lrwxrwxrwx. 1 Hazard Liulab          1 Nov 22 20:24 root -> /
+-rw-r--r--. 1 Hazard Liulab       2403 Nov 22 20:24 sched
+-r--r--r--. 1 Hazard Liulab     130825 Nov 22 20:24 smaps
+-r--r--r--. 1 Hazard Liulab        233 Nov 22 20:24 stat
+-r--r--r--. 1 Hazard Liulab         34 Nov 22 20:24 statm
+-r--r--r--. 1 Hazard Liulab        936 Nov 22 20:24 status
+-r--r--r--. 1 Hazard Liulab         67 Nov 22 20:24 syscall
+```     
 重点关注cmdline 和 exe,cwd 等  
 cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)  
 exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)  
