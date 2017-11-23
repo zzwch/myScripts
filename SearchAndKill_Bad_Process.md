@@ -1,10 +1,11 @@
 # 查杀挖矿机进程md
 
-[root@localhost]# top # 查看到md（占用cpu近100%）的PID 4444
-[root@localhost]# cd /proc/4444
-[root@localhost]# ll 
-# 重点关注cmdline 和 exe,cwd 等
-# cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)
+`top`
+        查看到md（占用cpu近100%）的PID 4444
+`cd /proc/4444`
+`ll`
+        重点关注cmdline 和 exe,cwd 等
+        cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)
 # exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)
 [root@localhost]# cat cmdline 
 # 这里看到如下字样，pool.minexmr.com 基本上跟挖矿有关了
