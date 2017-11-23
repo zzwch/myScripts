@@ -33,8 +33,10 @@ lrwxrwxrwx. 1 Hazard Liulab          1 Nov 22 20:24 root -> /
 重点关注cmdline 和 exe,cwd 等  
 cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)  
 exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)  
-`[root@localhost 4444]# cat cmdline`      
-`-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`   
+```
+[root@localhost 4444]# cat cmdline
+-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777......(我给省略了一些字符，(￣▽￣)")
+```
 这里看到这些字样，pool.minexmr.com 基本上跟挖矿有关了   
 ```
 [root@localhost 4444]# cd /lib/modules/.z/
