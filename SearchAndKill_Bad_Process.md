@@ -3,18 +3,18 @@
 `[root@localhost]# top` 查看到md（占用cpu近100%）的PID 4444  
 `[root@localhost]# cd /proc/4444`  
 `[root@localhost]# ll`  
-重点关注cmdline 和 exe,cwd 等
-cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)
-exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)
-`[root@localhost]# cat cmdline`  
-这里看到如下字样，pool.minexmr.com 基本上跟挖矿有关了  
-`-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`
+重点关注cmdline 和 exe,cwd 等  
+cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)  
+exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)  
+`[root@localhost]# cat cmdline`   
+这里看到如下字样，pool.minexmr.com 基本上跟挖矿有关了    
+`-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`   
 ```
 [root@localhost]# cd /lib/modules/.z/
 [root@localhost .z]# ll
 ```
- ll结果如下，h32,h64,md,mdx都是二进制文件
- 我们可以从a, run, x 三个文件里看到些端倪
+ ll结果如下，h32,h64,md,mdx都是二进制文件  
+ 我们可以从a, run, x 三个文件里看到些端倪  
 ```
 -rw-r--r--. 1 root root       0 Nov 23 15:40 $
 -rwxr-xr-x. 1 root root     332 Oct  5 03:07 a
@@ -70,7 +70,7 @@ echo $! > bash.pid
 ```
 nohup ./a >>/dev/null &
 ```
-
+-------------
  无奈只能曲线救国，写了一个守护进程，一旦看到md运行就kill掉它  
  其中ps -ef 结果的第三列是父进程，为了追综始作俑者。  
  一般命令行运行的程序好像父进程是1？  
