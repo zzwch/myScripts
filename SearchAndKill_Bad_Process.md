@@ -1,8 +1,9 @@
 # 查杀挖矿机进程md
 
 `[root@localhost]# top` 查看到md（占用cpu近100%）的PID， 4444（假设是这个数字）
-```[root@localhost]# cd /proc/4444
-[root@localhost]# ll
+```
+[root@localhost]# cd /proc/4444
+[root@localhost 4444]# ll
 -r--------. 1 Hazard Liulab        304 Nov 22 20:24 auxv
 --w-------. 1 Hazard Liulab          0 Nov 22 20:24 clear_refs
 -r--r--r--. 1 Hazard Liulab        414 Nov 22 20:24 cmdline
@@ -32,11 +33,11 @@ lrwxrwxrwx. 1 Hazard Liulab          1 Nov 22 20:24 root -> /
 重点关注cmdline 和 exe,cwd 等  
 cwd 指向 /lib/modules/.z (这个目录里放着挖矿的程序)  
 exe指向 /lib/modules/.z/md (这个就是占用100%cpu的家伙)  
-`[root@localhost]# cat cmdline`      
-`-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`   
+`[root@localhost 4444]# cat cmdline`      
+`-bash -acryptonight-os tratum+tcp://pool.minexmr.com:7777`   
 这里看到这些字样，pool.minexmr.com 基本上跟挖矿有关了   
 ```
-[root@localhost]# cd /lib/modules/.z/
+[root@localhost 4444]# cd /lib/modules/.z/
 [root@localhost .z]# ll
 -rw-r--r--. 1 root root       0 Nov 23 15:40 $
 -rwxr-xr-x. 1 root root     332 Oct  5 03:07 a
