@@ -1,6 +1,5 @@
-############
 # 查杀挖矿机进程md
-##############
+
 [root@localhost]# top # 查看到md（占用cpu近100%）的PID 4444
 [root@localhost]# cd /proc/4444
 [root@localhost]# ll 
@@ -15,17 +14,18 @@
 [root@localhost .z]# ll
 # ll结果如下，h32,h64,md,mdx都是二进制文件
 # 我们可以从a, run, x 三个文件里看到些端倪
-#-rw-r--r--. 1 root root       0 Nov 23 15:40 $
-#-rwxr-xr-x. 1 root root     332 Oct  5 03:07 a
-#-rw-r--r--. 1 root root       1 Nov 23 18:07 bash.pid
-#-rwxr-xr-x. 1 1001 1001   15125 Feb 21  2016 h32
-#-rwxr-xr-x. 1 1001 1001  838583 Feb 21  2016 h64
-#-rwxr-xr-x. 1 root root 2979640 Jun 24 04:19 md
-#-rwxr-xr-x. 1 root root  168896 Sep 27 18:58 mdx
-#-rwxr-xr-x. 1 root root     533 Nov 19 22:41 run
-#-rw-r--r--. 1 root root    4833 Nov 23 16:24 screenlog.0
-#-rwxr-xr-x. 1 root root      24 Oct  5 02:45 x
-
+```
+-rw-r--r--. 1 root root       0 Nov 23 15:40 $
+-rwxr-xr-x. 1 root root     332 Oct  5 03:07 a
+-rw-r--r--. 1 root root       1 Nov 23 18:07 bash.pid
+-rwxr-xr-x. 1 1001 1001   15125 Feb 21  2016 h32
+-rwxr-xr-x. 1 1001 1001  838583 Feb 21  2016 h64
+-rwxr-xr-x. 1 root root 2979640 Jun 24 04:19 md
+-rwxr-xr-x. 1 root root  168896 Sep 27 18:58 mdx
+-rwxr-xr-x. 1 root root     533 Nov 19 22:41 run
+-rw-r--r--. 1 root root    4833 Nov 23 16:24 screenlog.0
+-rwxr-xr-x. 1 root root      24 Oct  5 02:45 x
+```
 [root@localhost .z]# cat a 
 ```
 pwd > dir.dir
