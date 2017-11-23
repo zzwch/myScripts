@@ -95,12 +95,17 @@ echo $! > bash.pid
 nohup ./a >>/dev/null &
 ```
 -------------
- 无奈只能曲线救国，写了一个守护进程，一旦看到md运行就kill掉它  
+# 暂时的解决方法
+ 无奈只能曲线救国，写了一个守护进程，一旦看到md运行就kill掉它   
  其中ps -ef 结果的第三列是父进程，为了追综始作俑者。  
  一般命令行运行的程序好像父进程是1？  
+ 
+ 把下面的代码复制到watchMD.sh中（记得改一下里面`file_name`的路径），  
+ 然后`nohup sh watchMD.sh &`即可每隔2s监控一次，碰到md就杀  
+ 改一下`proc_name`（支持正则表达式），可以神挡杀神
 ```
 #!/bin/sh
-proc_name="^sh md$" 
+proc_name="^md$" 
 file_name="/data2/lzc/watchMD.log"
 
 echo `date` = NUM = PID > $file_name
