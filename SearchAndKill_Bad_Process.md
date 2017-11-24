@@ -120,12 +120,12 @@ do
     pid=`pgrep -x "$proc_name"`
     ps -ef | grep $pid | grep -v grep >> $file_name
     echo == >> $file_name
-    par=(`ps -ef | grep $pid | grep -v grep | cut -f3`)
+    par=(`ps -ef | grep $pid | grep -v grep | awk '{print $3}'`)
     ps -ef | grep ${par[0]} | grep -v grep >> $file_name
     echo ==== >> $file_name
     kill $pid
     echo `date` =  $num  = $pid >> $file_name
  fi
  sleep 2
-done  
+done
 ```
