@@ -1,0 +1,25 @@
+# RHEL6.6配置163yum源（亲测可用）
+https://jingyan.baidu.com/article/00a07f3866d61582d128dc4a.html
+
+# 安装编译环境for usb无线驱动
+yum install kernel-devel
+yum install gcc
+
+
+# 安装ntfs-3g 挂载移动硬盘
+wget https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz
+tar -xvzf ntfs-3g_ntfsprogs-2017.3.23.tgz
+cd ntfs-3g_ntfsprogs-2017.3.23
+./configure
+make
+make intall
+mkdir /mnt/usb1
+ntfs-3g /dev/sdc1 /mnt/usb1
+
+# 修正SSH Secure Shell Client中文乱码的解决办法 
+vi /etc/sysconfig/i18n  
+将内容改为
+LANG="zh_CN.GB18030"  
+LANGUAGE="zh_CN.GB18030:zh_CN.GB2312:zh_CN"  
+SUPPORTED="zh_CN.GB18030:zh_CN:zh:en_US.UTF-8:en_US:en"  
+SYSFONT="lat0-sun16" 
