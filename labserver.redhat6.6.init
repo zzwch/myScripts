@@ -17,9 +17,8 @@ mkdir /mnt/usb1
 ntfs-3g /dev/sdc1 /mnt/usb1
 
 # 修正SSH Secure Shell Client中文乱码的解决办法 
-vi /etc/sysconfig/i18n  
-将内容改为
-LANG="zh_CN.GB18030"  
-LANGUAGE="zh_CN.GB18030:zh_CN.GB2312:zh_CN"  
-SUPPORTED="zh_CN.GB18030:zh_CN:zh:en_US.UTF-8:en_US:en"  
-SYSFONT="lat0-sun16" 
+vi /etc/profile.d/custom.sh
+添加如下内容
+LANG=zh_CN.GB2312
+export LANG
+保存，source /etc/profile
