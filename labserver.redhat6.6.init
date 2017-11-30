@@ -16,7 +16,7 @@ make intall
 mkdir /mnt/usb1
 ntfs-3g /dev/sdc1 /mnt/usb1
 
-# 修正SSH Secure Shell Client中文乱码的解决办法 
+# 修正SSH Secure Shell Client中文乱码的解决办法 !!! 差评，改了之后进不去桌面界面
 vi /etc/profile.d/custom.sh
 添加如下内容
 LANG=zh_CN.GB2312
