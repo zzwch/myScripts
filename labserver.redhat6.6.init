@@ -44,8 +44,9 @@ conda config --set show_channel_urls yes
 
 # 安装g++和gfortran,安装编译R包需要
 yum install gcc-c++ gcc-gfortran
-
-#安装升级gcc
+#一些R包需要安装升级gcc 4.8.5, just for CentOS 6  
+yum install glibc-devel.i686
+yum install libstdc++-devel.i686
 http://m.blog.csdn.net/yomo127/article/details/51094476
 
 
