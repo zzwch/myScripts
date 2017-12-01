@@ -34,7 +34,9 @@ export LANG
 # 安装conda
 sh Anaconda**.sh
 # 添加Anaconda的TUNA镜像
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --set show_channel_urls yes
 # TUNA的help中镜像地址加有引号，需要去掉
 
 # 设置搜索时显示通道地址
