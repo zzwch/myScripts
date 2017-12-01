@@ -30,3 +30,18 @@ vi /etc/profile.d/custom.sh
 LANG=zh_CN.GB2312
 export LANG
 保存，source /etc/profile
+
+# 安装conda
+sh Anaconda**.sh
+vi ~/.condarc 
+####
+channels:
+  - bioconda
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/msys2/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/bioconda
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free
+  - defaults
+  - r
+show_channel_urls: true
+####
