@@ -44,3 +44,8 @@ conda config --set show_channel_urls yes
 
 # 安装g++和gfortran,安装编译R包需要
 yum install gcc-c++ gcc-gfortran
+
+#安装升级gcc
+http://m.blog.csdn.net/yomo127/article/details/51094476
+
+
