@@ -42,3 +42,5 @@ conda config --set show_channel_urls yes
 # 设置搜索时显示通道地址
 conda config --set show_channel_urls yes
 
+# 安装g++
+yum install gcc-c++
