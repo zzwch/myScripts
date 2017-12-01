@@ -18,12 +18,11 @@ mkdir /mnt/usb1
 ntfs-3g /dev/sdc1 /mnt/usb1
 
 # 实现插入NTFS硬盘自动挂载
-vi /sbin/mount.ntfs
-写入以下内容
-#!/bin/sh
-#/sbin/mount.ntfs-3g $@
-mount -t ntfs-3g -o locale=zh_CN.UTF-8 $@
-PS：中文目录支持
+http://www.rpmfind.net/linux/rpm2html/search.php?query=rpmforge-release
+从里面下载适合系统版本的rpmforge
+wget http://www.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+rpm -i rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+yum install fuse-ntfs-3g
 
 # 修正SSH Secure Shell Client中文乱码的解决办法 !!! 差评，改了之后进不去桌面界面
 vi /etc/profile.d/custom.sh
