@@ -6,6 +6,7 @@ yum install kernel-devel
 yum install gcc
 
 
+
 # 安装ntfs-3g 挂载移动硬盘
 wget https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz
 tar -xvzf ntfs-3g_ntfsprogs-2017.3.23.tgz
@@ -15,6 +16,14 @@ make
 make intall
 mkdir /mnt/usb1
 ntfs-3g /dev/sdc1 /mnt/usb1
+
+# 实现插入NTFS硬盘自动挂载
+vi /sbin/mount.ntfs
+写入以下内容
+#!/bin/sh
+#/sbin/mount.ntfs-3g $@
+mount -t ntfs-3g -o locale=zh_CN.UTF-8 $@
+PS：中文目录支持
 
 # 修正SSH Secure Shell Client中文乱码的解决办法 !!! 差评，改了之后进不去桌面界面
 vi /etc/profile.d/custom.sh
