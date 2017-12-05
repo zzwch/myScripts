@@ -43,3 +43,22 @@ myGOEnrich <- function(pbmc.markers, clusters = NULL, width = 600, height = 350)
     dev.off()
   }
 }
+# convert seurat2 Object to Rdata needed by sciDV (a in-house shiny-server) 
+seurat2idv <- function(pbmc = NULL, subcat = NULL, colors = NULL, save.file = NULL){
+  data_expr <- pbmc@data
+  data_annot <- pbmc@meta.data
+  data_subcat <- intersect(subcat, colnames(pbmc@meta.data))
+  data_color <- colors
+  data_coord <- list()
+  if(!is.null(pbmc@dr$pca)){
+    data_annot <- cbind(data_annot, pbmc@dr$pca@cell.embeddings[,c(1,2)])
+    data_coord <- c(data_coord, list(PCA = colnames(pbmc@dr$pca@cell.embeddings[,c(1,2)])))
+  }
+  if(!is.null(pbmc@dr$tsne)){
+    data_annot <- cbind(data_annot, pbmc@dr$tsne@cell.embeddings[,c(1,2)])
+    data_coord <- c(data_coord, list(tSNE = colnames(pbmc@dr$tsne@cell.embeddings[,c(1,2)])))
+  }
+  
+  save(data_expr, data_annot, data_subcat, data_color, data_coord, file = save.file)
+  return()
+}
