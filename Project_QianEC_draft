@@ -1,0 +1,15 @@
+Multilineage communication regulates human liver
+bud development from pluripotency
+1. tSNE based on ligand-receptor genes
+2. construct genesets database of mm10 and hg19  
+    ligand-receptor
+    ligand
+    receptor
+    cell cycle
+    cell surface markers
+    cell surface proteins
+    transcription factors (see AnimalTF Database)
+    plasma membrane, secreted, etc
+see Ramilowski, J. A. et al. A draft network of ligand-receptor-mediated
+multicellular signalling in human. Nat. Commun. 6, 7866 (2015).
+
