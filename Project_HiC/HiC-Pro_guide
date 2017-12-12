@@ -3,6 +3,10 @@
    $DIR/bin/utils/*
    $DIR/scripts/* 
    these files must be included in the same $DIR, and your may add $DIR/bin/ to $PATH
+   NOTICE(this bug may be fixed in next stable version at about the end of 2017 as author says):
+       Due to update of ggplots R package, four R script files under $DIR/scripts/ should be replaced 
+       by devel version HiC-Pro (see https://github.com/nservant/HiC-Pro/tree/devel/scripts).
+       
 2. Achive Annotation files
    chromosome size: download from UCSC or get from mm10.fa.fai
    restriction fragment BED file (see DIGEST_GENOME.PY): digest_genome.py -r mboi -o mm10_MobI.bed mm10.fasta (just wait a moment)
