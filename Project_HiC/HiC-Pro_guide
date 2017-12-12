@@ -1,0 +1,30 @@
+1. Install HiC-Pro, refer to https://github.com/nservant/HiC-Pro
+   $DIR/bin/HiC-Pro # executable file
+   $DIR/bin/utils/*
+   $DIR/scripts/* 
+   these files must be included in the same $DIR, and your may add $DIR/bin/ to $PATH
+2. Achive Annotation files
+   chromosome size: download from UCSC or get from mm10.fa.fai
+   restriction fragment BED file (see DIGEST_GENOME.PY): digest_genome.py -r mboi -o mm10_MobI.bed mm10.fasta (just wait a moment)
+3. Get bowtie2 index: bowtie2-build mm10.fa mm10 (Nearly half an hour)
+4. Build Data Directory Structure
+   DataDir
+    |---rawdata
+    |     |---dir_sample1
+    |     |    |---sample1_R1.fastq.gz
+    |     |    `---sample1_R2.fastq.gz
+    |     |---dir_sample2
+    |     |    |---sample2_R1.fastq.gz
+    |     |    `---sample2_R2.fastq.gz
+    |     `---dir_sample3
+    |          |---sample1_R1.fastq.gz
+    |          `---sample1_R2.fastq.gz
+    `---config-hicpro.hsc.txt   
+ 5. Execute HiC-Pro preprocessing
+    How to Use HiC-Pro, refer to http://nservant.github.io/HiC-Pro/
+    Major steps:
+    step1. setting the configuration file, see http://nservant.github.io/HiC-Pro/MANUAL.html#setting-the-configuration-file
+    step2. command: "nohup HiC-Pro -i rawdata/ -o hicpro -c config-hicpro.hsc.txt > hicpro.log 2>&1 &"
+    step3. download hicpro folder to check the results.
+    
+ 
