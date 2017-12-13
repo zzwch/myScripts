@@ -8,3 +8,5 @@ use the hicpro2fithic.py utility to connvert HiC-Pro output to Fit-Hi-C input fi
 - **`HiTC`** R package 
 function to import HiC-Pro output into the R environment. 
 Contact matrices are then stored as sparse Matrix, which can be used for any downstream analysis.
+source("https://bioconductor.org/biocLite.R")
+biocLite("FitHiC")
