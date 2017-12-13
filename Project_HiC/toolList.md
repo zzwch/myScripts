@@ -10,3 +10,4 @@ function to import HiC-Pro output into the R environment.
 Contact matrices are then stored as sparse Matrix, which can be used for any downstream analysis.
 source("https://bioconductor.org/biocLite.R")
 biocLite("FitHiC")
+- **`deepTools`** is a suite of python tools particularly developed for the efficient analysis of high-throughput sequencing data, such as ChIP-seq, RNA-seq or MNase-seq. http://deeptools.readthedocs.io/en/latest/
