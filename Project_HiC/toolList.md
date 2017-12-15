@@ -1,4 +1,4 @@
-# preprocessing tool
+# processing tool
 - **`HiC-Pro`** and downstream analysis tools, see http://nservant.github.io/HiC-Pro/COMPATIBILITY.html
 - **`Juicebox`** : dynamic visualization of HiC contact maps, `http://aidenlab.org/juicebox/`
 - **`HiCPlotter`** : Hi-C data visualization, `https://github.com/kcakdemir/HiCPlotter`
