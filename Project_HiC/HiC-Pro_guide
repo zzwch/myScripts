@@ -31,4 +31,4 @@
     step2. command: "nohup HiC-Pro -i rawdata/ -o hicpro -c config-hicpro.hsc.txt > hicpro.log 2>&1 &"
     step3. download hicpro folder to check the results.
     
- 
+ 6. Execute HiC-Pro.post.sh, which is a in-house shell script for pooling data and depth-normalization.
