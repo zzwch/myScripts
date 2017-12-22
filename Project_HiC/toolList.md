@@ -13,3 +13,4 @@ biocLite("FitHiC")
 - **`HiCExplorer`** is a powerful and easy to use set of tools to process, normalize and visualize Hi-C data. http://hicexplorer.readthedocs.org
 - **`HiCBrowser`**  A simple web browser to visualize Hi-C and other genomic tracks. https://github.com/deeptools/HiCBrowser
 - **`deepTools`** is a suite of python tools particularly developed for the efficient analysis of high-throughput sequencing data, such as ChIP-seq, RNA-seq or MNase-seq. http://deeptools.readthedocs.io/en/latest/
+- **`HOMER`** Software for motif discovery and next-gen sequencing analysis. http://homer.ucsd.edu/homer/interactions/index.html
