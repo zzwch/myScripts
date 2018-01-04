@@ -9,6 +9,9 @@ do
   done;
 done
 
+#修改用户主目录，所在用户组
+usermod -g Liulab Hazard
+usermod -d /home/Hazard Hazard
 
 #通过反向隧道访问局域网服务器（局域网服务器必须能联网）
 局域网内服务器：userA@aa.aaa.aa.aaa:portA
