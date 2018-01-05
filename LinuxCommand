@@ -13,6 +13,21 @@ done
 usermod -g Liulab Hazard
 usermod -d /home/Hazard Hazard
 
+#linux防火墙 iptables  http://www.linuxidc.com/Linux/2012-03/56066.htm
+vi /etc/sysconfig/iptables 
+开通端口3838和80的访问
+-A INPUT -s 192.168.1.0/24 -p tcp -m tcp --dport 3838 -j ACCEPT 
+-A INPUT -s 192.168.1.0/24 -p tcp -m tcp --dport 80 -j ACCEPT
+保存文件
+先service iptables restart，然后调用/etc/rc.d/init.d/iptables save
+下面介绍一些指令用法（主要还是man iptables看下相关资料才行）
+-A：指定链名   
+-p：指定协议类型   
+-d：指定目标地址   
+--dport：指定目标端口（destination port 目的端口）   
+--sport：指定源端口（source port 源端口）   
+-j：指定动作类型  
+
 #通过反向隧道访问局域网服务器（局域网服务器必须能联网）
 局域网内服务器：userA@aa.aaa.aa.aaa:portA
 外网服务器：userB@bb.bbb.bbb.bbb:portB
