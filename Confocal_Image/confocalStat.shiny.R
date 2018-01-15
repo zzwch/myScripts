@@ -1,4 +1,4 @@
-#setwd("K:/307Hospital/Workspace/EC-RNA-Seq/sprint/20171211/fromHouSiyuan/")
+# check package independencies
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(shiny, shinydashboard, tiff, EBImage, SDMTools)
 if(!all(p_isloaded(shiny, shinydashboard, tiff, EBImage, SDMTools))) 
@@ -35,7 +35,7 @@ overlapStat <- function(list){
     })
   })
 }
-######
+###### UI
 ui <- dashboardPage(title = "Widget for Confocal Image",
   dashboardHeader(title = "Widget for Confocal Image", titleWidth = "100%", disable = F),
   dashboardSidebar(width = 200,
@@ -110,6 +110,7 @@ ui <- dashboardPage(title = "Widget for Confocal Image",
     )
 )
 
+### SERVER
 server <- function(input, output) {
   tiff <- reactive({
     # input$tiff.* will be NULL initially. After the user selects
