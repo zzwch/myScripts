@@ -1,1 +1,1 @@
-`confocalStat.shiny.R` is a 'in-house' shiny-app used for statistics of color pixels.
+__`confocalStat.shiny.R`__ is a _in-house_ shiny-app used for statistics of color pixels.
