@@ -1,3 +1,5 @@
+# Functional code, which had been adapted to shiny server code.
+# Save it here as a reminder.
 options(stringsAsFactors = F)
 rm(list = ls())
 library(tiff)
