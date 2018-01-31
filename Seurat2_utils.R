@@ -1,3 +1,18 @@
+myFeaturePlot <- function(object, features.plot, nrow = NULL, ncol = NULL, ...){
+  require(ggplot2)
+  require(gridExtra)
+  ggData <- as.data.frame(cbind(object@dr$tsne@cell.embeddings,FetchData(object, features.plot)))
+  colnames(ggData) <- c(colnames(object@dr$tsne@cell.embeddings),gsub("-",".",features.plot))
+  # print(feature.tmp)
+  # ggData[,feature.tmp] <- t(object@data[feature.tmp,])
+  ggl <- lapply(features.plot, function(feature){
+    ggplot(ggData) + geom_point(mapping = aes_string(x = "tSNE_1", y = "tSNE_2", color = gsub("-",".",feature)), size = 2) + 
+      scale_color_gradientn(colours = c("grey","yellow","red")) + 
+      theme(legend.title = element_blank(),axis.title = element_blank()) + ggtitle(feature) 
+  })
+  grid.arrange(grobs = ggl, nrow= nrow,ncol = ncol)
+}
+
 bpGOEnrich <- function(pbmc.markers){
   require(BiocParallel)
   
