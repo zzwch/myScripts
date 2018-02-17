@@ -1,5 +1,3 @@
-options(stringsAsFactors = F)
-rm(list = ls())
 library(ggplot2)
 library(ggridges)
 waddington_layout <- list(row = c(1,1,2,3,4,4), 
@@ -10,11 +8,11 @@ waddington_layout <- list(row = c(1,1,2,3,4,4),
                                      c(1.2,1, 0.9,0.9, 1.7,2.3),
                                      c(1.2,1, 0.9,0.9, 1.1,0.9, 1,1),
                                      c(1,1, 1,1, 1,1, 1,1)))
-waddingtonPlot(waddington_layout, line.color = "white", line.size = 0.1, line.alpha = 0.1, line.type = 1,
-               width = 1000, wave.num = 100, wave.height = 8, do.return =T) + 
+waddingtonPlot(waddington_layout, line.color = "black", line.size = 0.5, line.alpha = 0.1, line.type = 1,
+               width = 1000, wave.num = 30, wave.height = 3, do.return =T) + 
   scale_fill_gradientn(colours = c("red","orange","yellow","green","blue","cyan","purple"))
 ggsave(filename = "waddington.pdf", width = 10, height = 6)
-waddingtonPlot <- function(layout, width = 1000, width.prop = 0.3, wave.num = 60, wave.height = 5, 
+waddingtonPlot <- function(layout, width = 1000, wave.num = 60, wave.height = 5, top_bottom.prop = 0.3,
                            line.color = "black", line.type = 1, line.size = 1, line.alpha = 0.6, do.return = F){
   require(ggplot2)
   require(ggridges)
@@ -46,7 +44,7 @@ waddingtonPlot <- function(layout, width = 1000, width.prop = 0.3, wave.num = 60
   interpolate <- quantile(1:wave.num, probs = row.scale/sum(row.scale), type = 1)
   ggData <- NULL
   height_total <- sum(interpolate)
-  ratio <- 1-width.prop
+  ratio <- 1-top_bottom.prop
   for(i in 1:(length(waveform.nums)-1)){
     curve1 <- waveform.curves[[i]]
     curve2 <- waveform.curves[[i+1]]
@@ -68,4 +66,3 @@ waddingtonPlot <- function(layout, width = 1000, width.prop = 0.3, wave.num = 60
     return(NULL)
   }
 }
-
