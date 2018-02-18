@@ -1,7 +1,9 @@
 # myScripts
 some scripts to be used again
-# Waddinton Epigenetic Landscape Plot using ggplot2 R package
+## 1. Waddinton Epigenetic Landscape 
+### Plot using ggplot2 R package
 ![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/waddington.toy.png)
+
 # BioSoft
 - CrossMap  
   * CrossMap is a program for convenient conversion of genome coordinates (or annotation files) between different assemblies (such as Human hg18 (NCBI36) <> hg19 (GRCh37), Mouse mm9 (MGSCv37) <> mm10 (GRCm38)).  
