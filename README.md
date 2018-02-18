@@ -1,8 +1,8 @@
 # myScripts
 some scripts to be used again
 ## 1. Waddinton Epigenetic Landscape 
-### Plot using ggplot2 R package
-![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/waddington.toy.png)
+[Waddington Plot](/waddingtonPlot.R) using ggplot2 R package
+[![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/waddington.toy.png)](/waddingtonPlot.R)
 
 # BioSoft
 - CrossMap  
