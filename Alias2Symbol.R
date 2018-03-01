@@ -7,9 +7,11 @@ genes <- Args[7:nArgs]
 # process
 options(stringsAsFactors = F)
 
-capitalize <- function(x){
-  tmp <- strsplit(x, split = "")[[1]]
-  paste0(toupper(tmp[1]), paste0(tmp[-1], collapse = ""))
+capitalize <- function(str){
+  sapply(str, function(x) {
+    tmp <- strsplit(x, split = "")[[1]]
+    paste0(toupper(tmp[1]), paste0(tmp[-1], collapse = ""))
+  })
 }
 
 geneMatch <- function(genes.1, genes.2, ignore.case = T){
@@ -50,5 +52,6 @@ if(tolower(species) %in% c("mm", "mmu","mouse","mus")) {
   genes <- toupper(genes)
 }
 
+#print(genes)
 res <- suppressWarnings(suppressMessages(alias2SymbolTable(alias = genes, species = species)))
 write.csv(x = res, file = "gene.csv", row.names = F)
