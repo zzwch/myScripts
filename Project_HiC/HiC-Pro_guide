@@ -1,3 +1,4 @@
+# For HiC-Pro v2.9.0
 1. Install HiC-Pro, refer to https://github.com/nservant/HiC-Pro
    $DIR/bin/HiC-Pro # executable file
    $DIR/bin/utils/*
