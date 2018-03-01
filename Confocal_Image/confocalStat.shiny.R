@@ -1,4 +1,4 @@
-# check package independencies
+#setwd("K:/307Hospital/Workspace/EC-RNA-Seq/sprint/20171211/fromHouSiyuan/")
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(shiny, shinydashboard, tiff, EBImage, SDMTools)
 if(!all(p_isloaded(shiny, shinydashboard, tiff, EBImage, SDMTools))) 
@@ -23,7 +23,7 @@ tiffBinary <- function(red, green, blue, red.cutoff = 0, green.cutoff = 0, blue.
   rgb[,,3] <- blue[,,3]
   return(list(rgb = rgb, red = red, green = green, blue = blue))
 }
-triplet <- function(mat, cutoff = 0.5){
+triplet <- function(mat, cutoff = 0.3){
   ind <- which(mat > cutoff, arr.ind = T)
   return(data.frame(x = ind[,2], y = -ind[,1]))
 }
@@ -35,7 +35,7 @@ overlapStat <- function(list){
     })
   })
 }
-###### UI
+######
 ui <- dashboardPage(title = "Widget for Confocal Image",
   dashboardHeader(title = "Widget for Confocal Image", titleWidth = "100%", disable = F),
   dashboardSidebar(width = 200,
@@ -48,17 +48,7 @@ ui <- dashboardPage(title = "Widget for Confocal Image",
                                 width = "100%", buttonLabel = "Green", placeholder = "No file selected"),
               
                       fileInput(inputId = "tiff.blue", label = NULL, multiple = F, accept = c(".tiff",".tif"), 
-                                width = "100%", buttonLabel = "Blue", placeholder = "No file selected"),
-               
-               
-                      sliderInput(inputId = "cutoff.red", label = NULL, min = 0, max = 1, value = 0.5, 
-                                  step = 0.01, round = -2, ticks = T, width = "100%", pre = "Red "),
-            
-                      sliderInput(inputId = "cutoff.green", label = NULL, min = 0, max = 1, value = 0.5, 
-                                  step = 0.01, round = -2, ticks = T, width = "100%", pre = "Green "),
-              
-                      sliderInput(inputId = "cutoff.blue", label = NULL, min = 0, max = 1, value = 0.5, 
-                                  step = 0.01, round = -2, ticks = T, width = "100%", pre = "Blue ")
+                                width = "100%", buttonLabel = "Blue", placeholder = "No file selected")
                ),
       menuItem("Display Image",
               
@@ -73,6 +63,15 @@ ui <- dashboardPage(title = "Widget for Confocal Image",
                                   step = 1, round = T, ticks = T, width = "100%", pre = NULL)
                ),
       menuItem("Region Statistics",
+               sliderInput(inputId = "cutoff.red", label = NULL, min = 0, max = 1, value = 0.3, 
+                           step = 0.01, round = -2, ticks = T, width = "100%", pre = "Red "),
+               
+               sliderInput(inputId = "cutoff.green", label = NULL, min = 0, max = 1, value = 0.3, 
+                           step = 0.01, round = -2, ticks = T, width = "100%", pre = "Green "),
+               
+               sliderInput(inputId = "cutoff.blue", label = NULL, min = 0, max = 1, value = 0.3, 
+                           step = 0.01, round = -2, ticks = T, width = "100%", pre = "Blue "),
+               
                actionButton(inputId = "action.new", label = "Start to Select", width = 160),
                actionButton(inputId = "action.submit", label = "Complete selection", width = 160),
                actionButton(inputId = "action.stat", label = "Statistics", width = 160)
@@ -110,7 +109,6 @@ ui <- dashboardPage(title = "Widget for Confocal Image",
     )
 )
 
-### SERVER
 server <- function(input, output) {
   tiff <- reactive({
     # input$tiff.* will be NULL initially. After the user selects
@@ -149,7 +147,7 @@ server <- function(input, output) {
     
     op <- par(bg = "black", mai = c(0,0,0,0), mar = c(0,0,0,0))
     plot(c(0, dims[2]), c(0, -dims[1]), type = "n", xlab = "", ylab = "",
-         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(0,-dims[1]))
+         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(-dims[1],0))
     rasterImage(raster.resize, 0, -dims[1], dims[2], 0, interpolate = F)
     par(op)
   },res = 150)
@@ -162,7 +160,7 @@ server <- function(input, output) {
     
     op <- par(bg = "black", mai = c(0,0,0,0), mar = c(0,0,0,0))
     plot(c(0, dims[2]), c(0, -dims[1]), type = "n", xlab = "", ylab = "",
-         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(0,-dims[1]))
+         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(-dims[1],0))
     rasterImage(raster.resize, 0, -dims[1], dims[2], 0, interpolate = F)
     par(op)
   },res = 150)
@@ -175,7 +173,7 @@ server <- function(input, output) {
     
     op <- par(bg = "black", mai = c(0,0,0,0), mar = c(0,0,0,0))
     plot(c(0, dims[2]), c(0, -dims[1]), type = "n", xlab = "", ylab = "",
-         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(0,-dims[1]))
+         xaxs = "i", yaxs = "i", xlim = c(0, dims[2]), ylim = c(-dims[1],0))
     rasterImage(raster.resize, 0, -dims[1], dims[2], 0, interpolate = F)
     par(op)
   },res = 150)
@@ -224,13 +222,14 @@ server <- function(input, output) {
     ep <- statRes[1,1]
     ep235 <- statRes[1,2]
     ep6 <- statRes[1,3]
-    ep7 <- ep - ep235 - ep6
+    ep7 <- length(setdiff(points.red.str, union(points.blue.str, points.green.str)))
     textRes <- paste0("(Red)              All EP: ", ep, "\n",
                       "(Red & Green)       EP235: ", ep235, "\n",
                       "(Red & Blue)          EP6: ", ep6, "\n",
                       "(Red & ^(Green|Blue)) EP7: ", ep7)
     output$stat.text <- renderText(textRes)
-    copyRes <- paste(ep,ep235,ep6,ep7, sep = "\t")
+    copyRes <- paste(input$cutoff.red,input$cutoff.green,input$cutoff.blue,
+                     ep,ep235,ep6,ep7, sep = "\t")
     output$stat.copy <- renderText(copyRes)
   })
 }
