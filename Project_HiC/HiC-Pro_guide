@@ -29,6 +29,8 @@
     How to Use HiC-Pro, refer to http://nservant.github.io/HiC-Pro/
     Major steps:
     step1. setting the configuration file, see http://nservant.github.io/HiC-Pro/MANUAL.html#setting-the-configuration-file
+           Notice: 
+             N_CPU < num_CPUs/num_Samples !      
     step2. command: "nohup HiC-Pro -i rawdata/ -o hicpro -c config-hicpro.hsc.txt > hicpro.log 2>&1 &"
     step3. download hicpro folder to check the results.
     
