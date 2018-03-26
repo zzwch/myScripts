@@ -1,0 +1,158 @@
+import click
+import os, re  
+from multiprocessing import cpu_count
+import logging
+
+@click.command(options_metavar='-i INPUT -o OUTPUT -g INDEX [-s ANALYSIS_STEP] [-p]',
+    short_help='chipliu')
+@click.option('-i','--input', metavar='INPUT', nargs=1, required=True, 
+    type=click.Path(exists=True, file_okay=False, resolve_path=True),
+    help='input data folder; Must contains a folder per sample with input files')
+@click.option('-o','--output', metavar='OUTPUT', nargs=1, required=True,
+	type=click.Path(exists=False, file_okay=False, resolve_path=True),
+    help = 'output folder')
+@click.option('-g','--genome', metavar='INDEX', nargs=1, required=True,
+    help = 'bowtie2 index file name used for mapping')
+@click.option('-s','--steps', metavar='ANALYSIS_STEP', 
+    help = 'run only a subset of the workflow; if not specified the complete workflow is run')
+@click.option('-p','--parallel', metavar='N_CPUS', nargs=1, 
+    type=click.INT, default = 1, show_default = True,
+    help = 'if specified run ChIP on the parallel-mode')
+@click.version_option()
+def steps(input, output, genome, steps, parallel):
+    """
+    A simple command line tool for chipseq data analysis.
+    
+    \b
+    NOTICE: The current version does not support selective steps.
+            The following 5 steps will be excuted sequentially.
+    ANALYSIS_STEPS:
+                 qc: reads quality control and trim apapters
+                      - fastqc + cutadapt, 
+                      - [REQUIRED] fastq files and adapter sequences
+            mapping: perform reads alignment
+                      - bowtie2 + samtools,
+                      - [REQUIRED] clean fastq files
+       post_mapping: manipulate mapped bam files
+                      - samtools sort + view + rmdup
+                      - get uniq mapped reads, and remove duplicates
+                      - [REQUIRED] mapped bam files
+       peak_calling: identify potential binding sites
+                      - macs2
+                      - [REQUIRED] deduplicated unique mapped bam files
+      normalization: get bigwig files for visualization
+                      - deeptools
+                      - [REQUIRED] deduplicated unique mapped bam files
+    """
+    if os.path.isdir(output):
+        click.echo('OUTPUT directory exists already! May you wanna try to resume it, otherwise remove/delete it mannually firstly!')
+        exit()
+
+    os.makedirs(output)
+    flog = open(os.path.join(output, 'chipliu.log'), "w")
+    flog.write("A simple command line tool for chipseq data analysis.\n")
+    flog.close()
+ 
+    logging.basicConfig(filename = os.path.join(output, 'chipliu.log'), 
+    	level = logging.INFO, filemode = 'a', format = '%(asctime)s - %(levelname)s: %(message)s')
+    #logging.debug('debug')
+    #logging.info('info')
+    #logging.warning('warn')
+    #logging.error('error')
+
+    logging.info('STEP0 - check parameters')
+    # check_options(input, output, genome, steps, parallel)
+    # check input paired-end fastaq
+    logging.info(' '*2 + 'check INPUT: paired-end fastq files for each sample')
+    logging.info(' '*4 + input)
+    samples = os.listdir(input)
+    sampleinfos = {}
+    re_fastq = re.compile('^(.*)[-_\.]r?(read)?[12]\.f.*q(.gz)?$',re.I)
+    re_fastq1 = re.compile('^(.*)[-_\.]r?(read)?1\.f.*q(.gz)?$',re.I)
+    re_fastq2 = re.compile('^(.*)[-_\.]r?(read)?2\.f.*q(.gz)?$',re.I)
+    for s in samples:
+        s_dir = os.path.join(input,s)
+        if os.path.isdir(s_dir):
+            #logging.info(s_dir)
+            s_files = os.listdir(s_dir)
+            s_fastq1 = {}
+            s_fastq2 = {}
+            for s_file in s_files:
+                if os.path.isfile(s_file):
+                    s_re1 = re_fastq1.match(s_file)
+                    s_re2 = re_fastq2.match(s_file)
+                    if s_re1 != None:
+                        s_fastq1[s_re1.group(1)] = s_file
+                    elif s_re2 != None:
+                        s_fastq2[s_re2.group(1)] = s_file
+            for s_fastq in list(set(s_fastq1.keys()).intersection(set(s_fastq2.keys()))):
+                sampleinfos[s] = [s_fastq1[s_fastq], s_fastq2[s_fastq]]
+                logging.info(' '*6 + s)
+                logging.info(' '*8 + s_fastq1[s_fastq])
+                logging.info(' '*8 + s_fastq2[s_fastq])
+    # check output existence
+    logging.info(' '*2 + 'check OUTPUT: existence')
+    if os.path.isdir(output):
+        logging.info(' '*4 + output + ': OUTPUT directory has been created!')
+    else:
+        logging.info(' '*4 + ': OUTPUT directory cannot be created!?')
+        exit()
+    # check genome existence
+    logging.info(' '*2 + 'check INDEX: existence')
+    if (os.path.isfile(genome+'.1.bt2') and os.path.isfile(genome+'.2.bt2') and os.path.isfile(genome+'.3.bt2') and os.path.isfile(genome+'.4.bt2')):
+        logging.info(' '*4 + 'genome bowtie2 INDEX files exists!')
+    else:
+        logging.info(' '*4 + 'genome bowtie2 INDEX files do not exist! Please build them first!')
+        #exit()
+    # check steps 
+    logging.info(' '*2 + 'check ANALYSIS_STEP: legality')
+    logging.info(' '*4 + 'these analysis will be performed sequentially: qc, mapping, post_mapping, peak_calling, normalization')
+    # check parallel
+    logging.info(' '*2 + 'check N_CPUS: maximum')
+    if (parallel > cpu_count()):
+        logging.info(' '*4 + 'N_CPUS exceed maximum core numbers! Number '+ str(int(0.8*int(cpu_count()))) + ' is recommended if available!')
+        exit()
+    else:
+        logging.info(' '*4 + str(parallel) + ' cores will be used for next analyses.')
+    
+    
+    logging.info('STEP0 - END')
+    
+    ############################
+    psamples = sampleinfos.keys()
+    logging.info('Samples to be processed:\n' + ','.join(sampleinfos.keys()))
+    
+	qc_dir = os.path.join(output, 'fastqc_results')
+    clean_dir = os.path.join(output, 'clean_data')
+	mapping_dir = os.path.join(output, 'bowtie2_results')
+    peak_dir = os.path.join(output, 'macs2_results')
+    
+	os.mkdir(qc_dir)
+	os.mkdir(clean_dir)
+	os.mkdir(mapping_dir)
+	os.mkdir(peak_dir)
+	
+	for p in psamples:
+		p_qc_dir = os.path.join(qc_dir, p)
+		p_clean_dir = os.path.join(clean_dir, p)
+		p_mapping_dir = os.path.join(clean_dir, p)
+		p_peak_dir = os.path.join(clean_dir, p)
+		
+		logging.info(p + ' - proceesing start...')
+		#fastqc
+		os.mkdir(p_qc_dir)
+		logging.info(p+' - fastqc')
+		p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		#
+		os.mkdir(p_qc_dir)
+		logging.info(p+' - fastqc')
+		p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		
+if __name__ == '__main__':
+    steps()
