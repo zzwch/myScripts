@@ -67,9 +67,9 @@ def steps(input, output, genome, steps, parallel):
     logging.info(' '*4 + input)
     samples = os.listdir(input)
     sampleinfos = {}
-    re_fastq = re.compile('^(.*)[-_\.]r?(read)?[12]\.f.*q(.gz)?$',re.I)
-    re_fastq1 = re.compile('^(.*)[-_\.]r?(read)?1\.f.*q(.gz)?$',re.I)
-    re_fastq2 = re.compile('^(.*)[-_\.]r?(read)?2\.f.*q(.gz)?$',re.I)
+    re_fastq = re.compile('^(.*)[-_\.]r?(read)?[12]\.f.*q(\.gz)?$',re.I)
+    re_fastq1 = re.compile('^(.*)[-_\.]r?(read)?1\.f.*q(\.gz)?$',re.I)
+    re_fastq2 = re.compile('^(.*)[-_\.]r?(read)?2\.f.*q(\.gz)?$',re.I)
     for s in samples:
         s_dir = os.path.join(input,s)
         if os.path.isdir(s_dir):
@@ -121,11 +121,15 @@ def steps(input, output, genome, steps, parallel):
     ############################
     psamples = sampleinfos.keys()
     logging.info('Samples to be processed:\n' + ','.join(sampleinfos.keys()))
-    
+    ret = os.symlink(input, os.path.join(output, 'rawdata'))
+	if(ret !=0 ):
+		logging.warning('cannot create the link of input in the output dir!')
+		exit()
+	
     clean_dir = os.path.join(output, 'clean_data')
-	qc_dir = os.path.join(output, 'fastqc_results')
-	mapping_dir = os.path.join(output, 'bowtie2_results')
-    peak_dir = os.path.join(output, 'macs2_results')
+	qc_dir = os.path.join(output, 'clean_fastqc')
+	mapping_dir = os.path.join(output, 'mapping_results')
+    peak_dir = os.path.join(output, 'peak_results')
     
 	os.mkdir(clean_dir)
 	os.mkdir(qc_dir)
@@ -133,29 +137,65 @@ def steps(input, output, genome, steps, parallel):
 	os.mkdir(peak_dir)
 	
 	for p in psamples:
+		p_input_dir = os.path.join(input,p)
 		p_clean_dir = os.path.join(clean_dir, p)
 		p_qc_dir = os.path.join(qc_dir, p)
 		p_mapping_dir = os.path.join(mapping_dir, p)
 		p_peak_dir = os.path.join(peak_dir, p)
 		
 		logging.info(p + ' >>> proceesing start...')
-		# #fastqc
-		# os.mkdir(p_qc_dir)
-		# logging.info(p+' - fastqc')
-		# p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
-		# if (p_ret != 0):
-			# logging.warning(p+' is skipped, '+'due to nonzero return!')
-			# continue
-		#trim_galore
-		os.mkdir(p_qc_dir)
-		logging.info(p+' >>> cleaning data (trim adapter and remove low quality) and fastqc')
 		
-		p_fq = [rv for r in zip(sampleinfos[p][1],sampleinfos[p][2]) for rv in r]
+		#trim_galore
+		os.mkdir(p_clean_dir)
+		os.mkdir(p_qc_dir)
+		logging.info(p+' >>> trim_galore: cleaning data (trim adapter and remove low quality) and fastqc')
+		p_fq = [os.path.join(p_input_dir,rv) for r in zip(sampleinfos[p][1],sampleinfos[p][2]) for rv in r]
 		p_cmd_qc = 'trim_galore --fastqc --fastqc_args "-t %d -o %s" --stringency 10 --length 30 --max_n 15 --trim-n -o %s --paired %s' %(parallel, p_qc_dir, p_clean_dir, ' '.join(p_fq))
 		p_ret = os.system(p_cmd_qc)
 		if (p_ret != 0):
 			logging.warning(p+' is skipped, '+'due to nonzero return!')
 			continue
+		
+		#bowtie2
+		os.mkdir(p_mapping_dir)
+		logging.info(p+' >>> bowtie2: clean reads mapping to genome')
+		re_fq_val_1 = re.compile('^(.*)[-_\.]r?(read)?1_val_1\.f.*q(\.gz)?$',re.I)
+		re_fq_val_2 = re.compile('^(.*)[-_\.]r?(read)?2_val_2\.f.*q(\.gz)?$',re.I)
+		p_fq_val_1 = [os.path.join(p_clean_dir, r) for r in re.fq_val_1.match(os.listdir(p_clean_dir))]
+		p_fq_val_2 = [os.path.join(p_clean_dir, r) for r in re.fq_val_2.match(os.listdir(p_clean_dir))]
+		p_cmd_bowtie2 = 'bowtie2 -p %s -x %s -1 %s -2 %s -S %s > %s 2>&1' %(parallel, genome, ','.join(p_fq_val_1), ','.join(p_fq_val_2), os.path.join(p_mapping_dir, p+'.mapped.sam'), os.path.join(p_mapping_dir, p+'.mapping.log'))
+		p_ret = os.system(p_cmd_bowtie2)
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		
+		# samtools
+		logging.info(p+' >>> samtools view: sam to bam')
+		p_cmd_samtools = 'samtools view -h -b -o %s %s' %(os.path.join(p_mapping_dir, p+'.mapped.bam'), os.path.join(p_mapping_dir, p+'.mapped.sam'))
+		p_ret = os.system(p_cmd_samtools)
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		logging.info(p+' >>> samtools sort: sort bam')
+		p_cmd_samtools = 'samtools sort -o %s %s' %(os.path.join(p_mapping_dir, p+'.mapped.sorted.bam'), os.path.join(p_mapping_dir, p+'.mapped.bam'))
+		p_ret = os.system(p_cmd_samtools)
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		logging.info(p+' >>> samtools view: get unique mapped bam')
+		p_cmd_samtools = 'samtools view -h -b -q 30 -o %s %s' %(os.path.join(p_mapping_dir, p+'.mapped.sorted.uniq.bam'), os.path.join(p_mapping_dir, p+'.mapped.sorted.bam'))
+		p_ret = os.system(p_cmd_samtools)
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		logging.info(p+' >>> samtools rmdup: remove duplicates')
+		p_cmd_samtools = 'samtools rmdup %s %s >> %s' %(os.path.join(p_mapping_dir, p+'.mapped.sorted.uniq.bam'), os.path.join(p_mapping_dir, p+'.mapped.sorted.uniq.dedup.bam'), os.path.join(p_mapping_dir, p+'.mapping.log'))
+		p_ret = os.system(p_cmd_samtools)
+		if (p_ret != 0):
+			logging.warning(p+' is skipped, '+'due to nonzero return!')
+			continue
+		
+		# macs2
 		
 if __name__ == '__main__':
     steps()
