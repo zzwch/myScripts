@@ -22,14 +22,14 @@ import logging
 def steps(input, output, genome, steps, parallel):
     """
     A simple command line tool for chipseq data analysis.
-    
+    Support for paired-end, illumina 1.9+ phred33
     \b
     NOTICE: The current version does not support selective steps.
             The following 5 steps will be excuted sequentially.
     ANALYSIS_STEPS:
-                 qc: reads quality control and trim apapters
-                      - fastqc + cutadapt, 
-                      - [REQUIRED] fastq files and adapter sequences
+                 qc: trim apapters and reads quality control
+                      - trim_galore + fastqc, 
+                      - [REQUIRED] fastq files
             mapping: perform reads alignment
                       - bowtie2 + samtools,
                       - [REQUIRED] clean fastq files
@@ -122,34 +122,37 @@ def steps(input, output, genome, steps, parallel):
     psamples = sampleinfos.keys()
     logging.info('Samples to be processed:\n' + ','.join(sampleinfos.keys()))
     
-	qc_dir = os.path.join(output, 'fastqc_results')
     clean_dir = os.path.join(output, 'clean_data')
+	qc_dir = os.path.join(output, 'fastqc_results')
 	mapping_dir = os.path.join(output, 'bowtie2_results')
     peak_dir = os.path.join(output, 'macs2_results')
     
-	os.mkdir(qc_dir)
 	os.mkdir(clean_dir)
+	os.mkdir(qc_dir)
 	os.mkdir(mapping_dir)
 	os.mkdir(peak_dir)
 	
 	for p in psamples:
-		p_qc_dir = os.path.join(qc_dir, p)
 		p_clean_dir = os.path.join(clean_dir, p)
-		p_mapping_dir = os.path.join(clean_dir, p)
-		p_peak_dir = os.path.join(clean_dir, p)
+		p_qc_dir = os.path.join(qc_dir, p)
+		p_mapping_dir = os.path.join(mapping_dir, p)
+		p_peak_dir = os.path.join(peak_dir, p)
 		
-		logging.info(p + ' - proceesing start...')
-		#fastqc
+		logging.info(p + ' >>> proceesing start...')
+		# #fastqc
+		# os.mkdir(p_qc_dir)
+		# logging.info(p+' - fastqc')
+		# p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
+		# if (p_ret != 0):
+			# logging.warning(p+' is skipped, '+'due to nonzero return!')
+			# continue
+		#trim_galore
 		os.mkdir(p_qc_dir)
-		logging.info(p+' - fastqc')
-		p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
-		if (p_ret != 0):
-			logging.warning(p+' is skipped, '+'due to nonzero return!')
-			continue
-		#
-		os.mkdir(p_qc_dir)
-		logging.info(p+' - fastqc')
-		p_ret = os.system('fastqc -o ' + p_qc_dir + ' -t ' + parallel + ' ' + ' '.sampleinfos[p] + ' > '+ os.path.join(p_qc_dir, p +'.fastqc.log') + ' 2>&1')
+		logging.info(p+' >>> cleaning data (trim adapter and remove low quality) and fastqc')
+		
+		p_fq = [rv for r in zip(sampleinfos[p][1],sampleinfos[p][2]) for rv in r]
+		p_cmd_qc = 'trim_galore --fastqc --fastqc_args "-t %d -o %s" --stringency 10 --length 30 --max_n 15 --trim-n -o %s --paired %s' %(parallel, p_qc_dir, p_clean_dir, ' '.join(p_fq))
+		p_ret = os.system(p_cmd_qc)
 		if (p_ret != 0):
 			logging.warning(p+' is skipped, '+'due to nonzero return!')
 			continue
