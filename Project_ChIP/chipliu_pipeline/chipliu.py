@@ -167,7 +167,6 @@ def steps(input, output, genome, steps, macs2_args, bamcoverage_args, parallel):
         # click.echo(sampleinfos)
         # click.echo(sampleinfos[p])
         p_fq = [os.path.join(p_input_dir,rv) for r in zip(sampleinfos[p][0],sampleinfos[p][1]) for rv in r]
-        click.echo(p_fq)
         p_cmd_qc = 'trim_galore --phred33 --fastqc --fastqc_args "-t %d -o %s" --stringency 10 --length 30 --max_n 15 --trim-n -o %s --paired %s' %(parallel, p_qc_dir, p_clean_dir, ' '.join(p_fq))
         p_ret = os.system(p_cmd_qc)
         if (p_ret != 0):
@@ -175,16 +174,12 @@ def steps(input, output, genome, steps, macs2_args, bamcoverage_args, parallel):
             continue
         
         #bowtie2
-        click.echo(0)
         os.mkdir(p_mapping_dir)
-        click.echo(1)
         logging.info(p+' >>> mapping: bowtie2 - clean reads mapping to genome')
         re_fq_val_1 = re.compile('^(.*)[-_\.]r?(read)?1_val_1\.f.*q(\.gz)?$',re.I)
         re_fq_val_2 = re.compile('^(.*)[-_\.]r?(read)?2_val_2\.f.*q(\.gz)?$',re.I)
-        click.echo(2)
         p_fq_val_1 = [os.path.join(p_clean_dir, r) for r in os.listdir(p_clean_dir) if re_fq_val_1.match(r)]
         p_fq_val_2 = [os.path.join(p_clean_dir, r) for r in os.listdir(p_clean_dir) if re_fq_val_2.match(r)]
-        click.echo(p_fq_val_1)
         p_cmd_bowtie2 = 'bowtie2 -p %s -x %s -1 %s -2 %s -S %s > %s 2>&1' %(parallel, genome, ','.join(p_fq_val_1), ','.join(p_fq_val_2), os.path.join(p_mapping_dir, p+'.mapped.sam'), os.path.join(p_mapping_dir, p+'.mapping.log'))
         p_ret = os.system(p_cmd_bowtie2)
         if (p_ret != 0):
