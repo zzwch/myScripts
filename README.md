@@ -2,7 +2,7 @@
 some scripts to be used again
 ## single cell RNA-Seq analysis method
 principal curves  
-ggrepel: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel
+`ggrepel`: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel
 ## Command Line Interface Creation Kit [:thumbsup:]
 Python composable command line utility http://click.pocoo.org/
 
