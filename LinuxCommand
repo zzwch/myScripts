@@ -1,3 +1,10 @@
+# 特定r版本的conda环境创建
+conda create -n r3.3.2 r=3.3.2
+To activate this environment, use:
+> source activate r3.3.2
+To deactivate an active environment, use:
+> source deactivate
+
 #删除多个同级文件夹
 cat sample | while read LINE; do for i in `seq 1 96`;do rm out_smartseq/$LINE/${LINE}_sc$i/tophat_out_refgene/ -r ;done; done
 or
