@@ -138,6 +138,8 @@ myFeaturePlot <- function(pbmc, features.plot, nrow = NULL, ncol = NULL, dr = c(
       xlab(label = xx) + ylab(label = yy) +
       theme(legend.title = element_blank()) + ggtitle(feature) 
     if(dr == "ccscore"){
+      th.g1s <- cc.args$th.g1s
+      th.g2m <- cc.args$th.g2m
       ccx <- ceiling(max(pbmc@meta.data$G1S.Score))
       ccy <- ceiling(max(pbmc@meta.data$G2M.Score))
       p <- p + geom_linerange(mapping = aes_(x = th.g1s, ymin = 0, ymax = th.g1s)) + 
