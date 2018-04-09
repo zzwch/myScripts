@@ -4,7 +4,7 @@ some scripts to be used again
 `pcurve` `princurve`:principal curves  
 `ggrepel`: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel
 ## useful tools
-Command Line Interface Creation Kit [:thumbsup:] Python composable command line utility http://click.pocoo.org/
+Command Line Interface Creation Kit [:thumbsup:] Python composable command line utility http://click.pocoo.org/  
 bam2fastx only converts the unmapped reads from the input file, discarding those unmapped reads flagged as QC failed.
 ## Waddinton Epigenetic Landscape 
 [Waddington Plot](/waddingtonPlot.R) using ggplot2 R package
