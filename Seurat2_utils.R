@@ -1,3 +1,9 @@
+writeSCENIC <- function(pbmc, file) {
+  exprMat <- pbmc@data
+  annot <- pbmc@meta.data[,"orig.ident",drop = F]
+  save(exprMat, annot, file = file)
+}
+
 pairwise.topgene.corr <- function(dataMat, ngene = 500, method = "spearman"){
   order_gene <- apply(dataMat, 2, function(x){order(x, decreasing = T)[1:ngene]})
   resMat <- matrix(NA, nrow = ncol(dataMat), ncol = ncol(dataMat), dimnames = list(colnames(dataMat), colnames(dataMat)))
