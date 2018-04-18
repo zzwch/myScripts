@@ -1,1 +1,17 @@
-pal_dolphin <- c("pink","#FF00AE", "#A020F1", "#000000", "#0403E5", "#FF8C01", "#8B0101", "#007502", "#FE0000", "#FFFF01", "#FF99CB", "#4A95FB", "#61FE69", "#9A7A01", "#017F8B", "#05FDFF", "grey")
+#bertie.color <- c("#D0B38A", "#A3D171", "#CC9BC5", "#AC6FAE", "#533E88", "#7957A3", "#000000", "#E63325", "#0A8041", "#C5208E", "#DF7AAF", "#3CBDED", "#3B55A3", "#D691BE", "#D23E28", "#6474B6", "#4288C8", "#80A469", "#FFCF3F", "#FBCC9F", "#FEBC3C", "#F06360", "#437BB2", "#A43E40", "#206767", "#779E43", "#F3D35C", "#98CE7E", "#258950", "#4885C6", "#F289B3", "#B4D05B", "#F7D059", "#ED803B") 
+bertie.color <- c("#D0B38A", "#A3D171", "#533E88", "#7957A3", "#000000", "#E63325", "#0A8041", "#C5208E", "#3CBDED", "#3B55A3", "#D691BE", "#D23E28", "#6474B6", "#4288C8", "#80A469", "#FFCF3F", "#FBCC9F", "#F06360", "#437BB2", "#A43E40", "#206767", "#779E43", "#258950", "#F7D059", "#ED803B") 
+#pal_dolphin <- c("pink","#FF00AE", "#A020F1", "#000000", "#0403E5", "#FF8C01", "#8B0101", "#007502", "#FE0000", "#FFFF01", "#FF99CB", "#4A95FB", "#61FE69", "#9A7A01", "#017F8B", "#05FDFF", "grey")
+pal_dolphin <- c("#FF00AE", "#A020F1", "#000000", "#0403E5", "#FF8C01", "#8B0101", "#007502", "#FE0000", "#FFFF01", "#FF99CB", "#4A95FB", "#61FE69", "#9A7A01", "#017F8B", "#05FDFF", "grey")
+
+pal_cluster <- c("#FF00AE", "#A020F1", "#000000", "#0403E5", "#FF8C01", 
+                 "#8B0101", "#007502", "#FE0000", "#FFFF01", "#FF99CB", 
+                 "#4A95FB", "#61FE69", "#9A7A01", "#017F8B", "#05FDFF",
+                 "#D0B38A", "#533E88", "#D23E28", "#80A469", "#F06360")
+pal_location <- c('pink','greenyellow','tan','salmon','midnightblue','lightgreen',
+                  'royalblue','darkred','darkgreen','darkorange','skyblue','saddlebrown')
+pal_stage <- c("indianred", "steelblue", "blue3")
+#WGCNA::displayColors(pal_location)
+#WGCNA::displayColors(pal_cluster)
+#WGCNA::displayColors(pal_stage)
+#WGCNA::standardColors(15)
+myrainbow <- c("red","orange","yellow","green","cyan","blue","purple")
