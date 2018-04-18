@@ -7,8 +7,8 @@ pal_cluster <- c("#FF00AE", "#A020F1", "#000000", "#0403E5", "#FF8C01",
                  "#8B0101", "#007502", "#FE0000", "#FFFF01", "#FF99CB", 
                  "#4A95FB", "#61FE69", "#9A7A01", "#017F8B", "#05FDFF",
                  "#D0B38A", "#533E88", "#D23E28", "#80A469", "#F06360")
-pal_location <- c('pink','greenyellow','tan','salmon','midnightblue','lightgreen',
-                  'royalblue','darkred','darkgreen','darkorange','skyblue','saddlebrown')
+pal_location <- Shuffle({set.seed(1); c('pink','greenyellow','tan','salmon','midnightblue','lightgreen',
+                  'royalblue','darkred','darkgreen','darkorange','skyblue','saddlebrown')})
 pal_stage <- c("indianred", "steelblue", "blue3")
 #WGCNA::displayColors(pal_location)
 #WGCNA::displayColors(pal_cluster)
