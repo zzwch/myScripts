@@ -173,7 +173,7 @@ myCCPlot <- function(pbmc, group.by = NULL, th.g1s = 2, th.g2m = 2, text.size = 
     scale_color_manual(values = cols.use[as.factor(group.colors)]) +
     #scale_x_continuous(expand = c(0, 0), limits = c(0, ccx)) + 
     #scale_y_continuous(expand = c(0, 0), limits = c(0, ccy)) +
-    geom_linerange(mapping = aes_(x = th.g1s, ymin = 0, ymax = th.g1s)) + 
+    geom_linerange(mapping = aes_(x = th.g1s, ymin = 0, ymax = th.g2m)) + 
     geom_segment(mapping = aes_(x = 0, y = th.g2m, xend = ccx, yend = th.g2m)) + 
     geom_segment(mapping = aes_(x = th.g1s, y = th.g2m, xend = ccx, yend = ccy)) +
     geom_text(mapping = aes_(th.g1s, quote(0.3), label = quote("Quiescent"), hjust = 1.1)) +
@@ -188,16 +188,48 @@ myCCPlot <- function(pbmc, group.by = NULL, th.g1s = 2, th.g2m = 2, text.size = 
   p2 <- ggplot(ccData) + 
     geom_bar(mapping = aes_string(x = group.by, y = "pct", fill = "cc.phase"), stat = "identity", width = 0.8) + 
     geom_text(mapping = aes_string(x = group.by, y= "ypos",label = quote(paste0(ccData$n,", ",sprintf("%1.1f", 100*ccData$pct),"%"))), size = text.size) +
-    ggtitle(label = "Cell cycle Distribution of Cells") + theme(plot.title = element_text(hjust = 0.5))
-#  pheatmap::pheatmap(expr, cluster_cols = F, cluster_rows = F, annotation_col = annot, border_color = NA)
+    ggtitle(label = "Cell cycle Distribution of Cells") + 
+    theme(plot.title = element_text(hjust = 0.5), axis.text.x = element_text(angle = 45, hjust =1, vjust = 1))
+  #  pheatmap::pheatmap(expr, cluster_cols = F, cluster_rows = F, annotation_col = annot, border_color = NA)
   require(gridExtra)
   grid.arrange(grobs = list(p1,p2), ncol = 2)
 }
-                                                          
-bpGOEnrich <- function(pbmc.markers){
-  require(BiocParallel)
+myHeatmap <- function(object, use.scaled = T, genes.use = NULL, annot.use = NULL, annot.colors = NULL,
+                      disp.min = -2.5, disp.max = 2.5, pdf.file = NULL, pdf.width, pdf.height ){
+  if(use.scaled){
+    data.use <- object@scale.data
+  }else{
+    data.use <- object@data
+  }
   
-  bplapply(sort(unique(pbmc.markers$cluster)), FUN = function(i){
+  data.use <- data.use[intersect(genes.use, rownames(data.use)), order(object@ident)]
+  data.use[data.use > disp.max] <- disp.max
+  data.use[data.use < disp.min] <- disp.min
+  
+  annot.use <- intersect(colnames(object@meta.data), annot.use)
+  
+  if(is.list(annot.colors)){
+    annot_colors <- annot.colors
+  }
+  if(is.null(annot.colors)){
+    annot_colors <- NA
+  }
+  if(!is.null(pdf.file)){
+    pdf(file = pdf.file, width = pdf.width, height = pdf.height, onefile = F)
+  }
+  pheatmap::pheatmap(data.use, cluster_cols = F, cluster_rows = F, show_colnames = F, color = colorRampPalette(colors = c("purple","black","yellow"))(11),
+                     annotation_col = object@meta.data[,annot.use, drop =F], border_color = NA,
+                     gaps_col = cumsum(table(object@ident)), 
+                     annotation_colors = annot_colors)
+  if(!is.null(pdf.file)){
+    dev.off()
+  }
+}
+bpGOEnrich <- function(pbmc.markers, workers = 2){
+  require(BiocParallel)
+  snowparam <- SnowParam(workers = workers, type = "SOCK")
+  
+  bplapply(as.character(sort(unique(pbmc.markers$cluster))), FUN = function(i){
     require(clusterProfiler)
     require(org.Hs.eg.db)
     require(stringr)
@@ -206,7 +238,7 @@ bpGOEnrich <- function(pbmc.markers){
     
     engo <- enrichGO(gene         = gogenes,
                      OrgDb         = org.Hs.eg.db,
-                     keytype       = 'SYMBOL',
+                     keyType       = 'SYMBOL',
                      ont           = "BP",
                      pAdjustMethod = "BH",
                      pvalueCutoff  = 0.01,
@@ -214,7 +246,7 @@ bpGOEnrich <- function(pbmc.markers){
     png(filename = paste0("GO_BP results of Cluster",i,".png"), width = 600, height = 350)
     print(dotplot(engo, title = paste0("GO_BP results of Cluster",i)) + scale_y_discrete(labels = function(x) str_wrap(x, width = 60)))
     dev.off()
-  }, BPPARAM = param)
+  }, BPPARAM = snowparam)
   
 }
 myGOEnrich <- function(pbmc.markers, clusters = NULL, width = 600, height = 350){
