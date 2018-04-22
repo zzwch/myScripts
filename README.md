@@ -3,7 +3,9 @@ some scripts to be used again
 ## single cell RNA-Seq analysis method
 `pcurve` `princurve`:principal curves  
 `ggrepel`: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel    
-`RSeQC`: An RNA-seq Quality Control Package http://rseqc.sourceforge.net
+`RSeQC`: An RNA-seq Quality Control Package http://rseqc.sourceforge.net    
+`bedtools`: a powerful toolset for genome arithmetic http://bedtools.readthedocs.io    
+
 ## useful tools
 `Command Line Interface Creation Kit` [:thumbsup:] Python composable command line utility http://click.pocoo.org/  
 `bam2fastx` only converts the unmapped reads from the input file, discarding those unmapped reads flagged as QC failed.
