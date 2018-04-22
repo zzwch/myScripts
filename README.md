@@ -4,11 +4,12 @@ some scripts to be used again
 `pcurve` `princurve`:principal curves  
 `ggrepel`: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel    
 `RSeQC`: An RNA-seq Quality Control Package http://rseqc.sourceforge.net    
-`bedtools`: a powerful toolset for genome arithmetic  http://bedtools.readthedocs.io http://www.cureffi.org/2013/11/18/an-mrna-seq-pipeline-using-gsnap-samtools-cufflinks-and-bedtools/    
 
 ## useful tools
 `Command Line Interface Creation Kit` [:thumbsup:] Python composable command line utility http://click.pocoo.org/  
-`bam2fastx` only converts the unmapped reads from the input file, discarding those unmapped reads flagged as QC failed.
+`bam2fastx` only converts the unmapped reads from the input file, discarding those unmapped reads flagged as QC failed.   
+`bedtools`: a powerful toolset for genome arithmetic  http://bedtools.readthedocs.io http://www.cureffi.org/2013/11/18/an-mrna-seq-pipeline-using-gsnap-samtools-cufflinks-and-bedtools/    
+`deepTools`: tools for exploring deep sequencing data  https://deeptools.readthedocs.io/en/develop/   
 ## Waddinton Epigenetic Landscape 
 [Waddington Plot](/waddingtonPlot.R) using ggplot2 R package
 [![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/waddington.toy.png)](/waddingtonPlot.R)
