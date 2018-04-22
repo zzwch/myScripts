@@ -4,7 +4,7 @@ some scripts to be used again
 `pcurve` `princurve`:principal curves  
 `ggrepel`: Repel overlapping text labels away from each other. https://github.com/slowkow/ggrepel    
 `RSeQC`: An RNA-seq Quality Control Package http://rseqc.sourceforge.net    
-`bedtools`: a powerful toolset for genome arithmetic http://bedtools.readthedocs.io    
+`bedtools`: a powerful toolset for genome arithmetic  http://bedtools.readthedocs.io http://www.cureffi.org/2013/11/18/an-mrna-seq-pipeline-using-gsnap-samtools-cufflinks-and-bedtools/    
 
 ## useful tools
 `Command Line Interface Creation Kit` [:thumbsup:] Python composable command line utility http://click.pocoo.org/  
