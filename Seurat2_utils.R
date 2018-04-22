@@ -89,9 +89,11 @@ AddCCscore <- function(pbmc, th.g1s = 2, th.g2m = 2, org = c("mouse","human"), g
   }
   pbmc
 }
-AddAVscore <- function(pbmc, org = c("mouse","human"), gene.max = NULL, add.dr = F, use.scale = F){
-  geneset1 <- c("Efnb2","Dll4","Hey1","Gja4","Unc5b")
-  geneset2 <- c("Ephb4","Nr2f2","Nrp2","Aplnr","Flt4")
+AddAVscore <- function(pbmc, org = c("mouse","human"), gene.max = NULL, add.dr = F, use.scale = F, 
+                       gs1 = c("Efnb2","Dll4","Hey1","Gja4","Unc5b"), gs2 = c("Ephb4","Nr2f2","Nrp2","Aplnr","Flt4")){
+  geneset1 <- gs1
+  geneset2 <- gs2
+  
   org = org[1]
   if(org %in% c("human","hsa","hg19")){
     geneset1 <- toupper(geneset1)
@@ -225,19 +227,25 @@ myHeatmap <- function(object, use.scaled = T, genes.use = NULL, annot.use = NULL
     dev.off()
   }
 }
-bpGOEnrich <- function(pbmc.markers, workers = 2){
+bpGOEnrich <- function(pbmc.markers,org =c("mouse","human"), workers = 2){
   require(BiocParallel)
   snowparam <- SnowParam(workers = workers, type = "SOCK")
-  
+  org <- org[1]
   bplapply(as.character(sort(unique(pbmc.markers$cluster))), FUN = function(i){
     require(clusterProfiler)
-    require(org.Hs.eg.db)
+    if(org == "human"){
+      require(org.Hs.eg.db)
+      db <- org.Hs.eg.db
+    }else{
+      require(org.Mm.eg.db)
+      db <- org.Mm.eg.db
+    }
     require(stringr)
     require(ggplot2)
     gogenes <- subset(pbmc.markers, cluster == i)$gene
     
     engo <- enrichGO(gene         = gogenes,
-                     OrgDb         = org.Hs.eg.db,
+                     OrgDb         = db,
                      keyType       = 'SYMBOL',
                      ont           = "BP",
                      pAdjustMethod = "BH",
