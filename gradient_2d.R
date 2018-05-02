@@ -1,0 +1,10 @@
+rotate <- function(x) t(apply(x, 2, rev))
+library(grid)
+mm <- tcrossprod(seq(1,0,length.out = 100))
+tmp1 <- sapply(col2rgb("red",alpha = T)/255, function(x) 1-mm*(1-x))
+tmp2 <- sapply(col2rgb("cyan",alpha = T)/255, function(x) 1-rotate(mm)*(1-x))
+tmp3 <- sapply(col2rgb("blue",alpha = T)/255, function(x) 1-rotate(rotate(mm))*(1-x))
+tmp4 <- sapply(col2rgb("grey",alpha = T)/255, function(x) 1-rotate(rotate(rotate(mm)))*(1-x))
+
+tmp <- (tmp1*tmp2*tmp3*tmp4)
+grid.raster(as.raster(matrix(rgb(tmp[,1], tmp[,2], tmp[,3], tmp[,4]), nrow = 100)))
