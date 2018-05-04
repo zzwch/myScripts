@@ -1,3 +1,4 @@
+## 2d lightening
 rotate <- function(x) t(apply(x, 2, rev))
 n <- 10
 library(grid)
