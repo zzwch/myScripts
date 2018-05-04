@@ -1,4 +1,3 @@
-# 2d lightening
 rotate <- function(x) t(apply(x, 2, rev))
 n <- 10
 library(grid)
@@ -27,8 +26,18 @@ mapExpr2color <- function(gene1, gene2, colormat, scale = F){
              round(1+(ncol(colormat)-1)*(gene1[x] - range1[1])/diff(range1))]
   })
 }
+
+gene1 <- "Kit"
+gene2 <- "Runx1"
 ggplot(data = data_annot) + 
   geom_point(mapping = aes(Main.wiPK44.tSNE_1, Main.wiPK44.tSNE_2), size = 2,
-             color = mapExpr2color(as.numeric(data_expr["Kit", rownames(data_annot)]),
-                                   as.numeric(data_expr["Spi1", rownames(data_annot)]),
-                                   colormat))
+             color = mapExpr2color(as.numeric(data_expr[gene1, rownames(data_annot)]),
+                                   as.numeric(data_expr[gene2, rownames(data_annot)]),
+                                   colormat)) +
+  ggtitle(label = paste0(gene1," vs ",gene2,"\n PCC = ", format(gcor[gene1,gene2], digits = 2), ", ",
+                         "Pvalue = ", format(WGCNA::corPvalueStudent(gcor[gene1,gene2], nrow(annot)), 
+                                             digits = 2, scientific = T)))
+  
+  grid.raster(colormat, x=4.5/5, y=1/4, width = 0.1, height = 0.1,interpolate = F)
+  grid.text(x =4.5/5, y = 1/4-0.05, label = gene1, vjust = 1, gp = gpar(fontface = "italic"))
+  grid.text(x =4.5/5-0.05, y = 1/4, label = gene2, vjust = -0.1, gp = gpar(fontface = "italic"), rot = 90)
