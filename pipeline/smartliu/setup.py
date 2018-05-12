@@ -9,6 +9,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        smartliu=smartliu:steps
+        smartliu=smartliu:smart
     ''',
 )
