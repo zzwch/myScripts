@@ -302,7 +302,7 @@ def config_check(cf):
     type=click.Path(exists=False, file_okay=False, resolve_path=True, writable=True, readable=True),
     help = 'output folder; existed folders is not allowed.')
 @click.option('-s','--sample', metavar='SAMPLE', nargs=1, required=False,
-    type = click.File(mode='r', encoding=None, errors='strict', lazy=None, atomic=False),
+    #type = click.File(mode='r', encoding=None, errors='strict', lazy=None, atomic=False),
     help = 'use Default to process all matched samples in INPUT or specify a file for the option. Notice, one SAMPLE per line in that specified file, and only included samples will be processed.')
 @click.option('-p','--thread', metavar='THREAD', nargs=1, required=False,
     type=click.INT, show_default = False,
