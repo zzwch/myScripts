@@ -1,3 +1,6 @@
+# 后台运行
+sh run.sh && disown -a && exit
+nohup sh run.sh &
 # 特定r版本的conda环境创建
 conda create -n r3.3.2 r=3.3.2
 To activate this environment, use:
