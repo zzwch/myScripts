@@ -3,10 +3,11 @@ import ConfigParser
 import logging
 import os, re  
 from multiprocessing import cpu_count
-from Bio import SeqIO
+#[deprecated] from Bio import SeqIO
+from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import gzip
 import json
-
+import io
 def mymkdir(dir):
     if not os.path.isdir(dir):
         os.mkdir(dir)
@@ -16,6 +17,8 @@ def hamming2(s1, s2):
     """
     assert len(s1) == len(s2)
     return sum(c1 != c2 for c1, c2 in zip(s1, s2))
+
+#[deprecated]
 def bestbarcode(tag, barcodes, mismatch):
     dist = {}
     if tag in barcodes:
@@ -34,7 +37,8 @@ def bestbarcode(tag, barcodes, mismatch):
         return None
     return [d_min, dist[d_min]]
 
-def paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, polya, min_len):
+#[deprecated]
+def deprecated_paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, polya, min_len):
     mismatch = int(mismatch) # in case of str
     tso_n = len(tso)
     out1 = gzip.open(fq, 'w')
@@ -98,48 +102,127 @@ def paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, polya, min_len)
     out1.close()
     out2.close()
     return bbcount
+
+def paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, polya, min_len):
+    buffer_max = 100000000
+    mismatch = int(mismatch) # in case of str
+    barcodes_mis_dict = mismatch_dict(barcodes, mismatch)
+    tso_n = len(tso)
+    out1 = io.BufferedWriter(gzip.open(fq, 'w'), buffer_size = buffer_max)
+    out2 = io.BufferedWriter(gzip.open(others, 'w'), buffer_size = buffer_max)
+    bbcount = dict(zip(barcodes, [[[0 for i in range(mismatch+1)] for j in range(2)] for k in range(len(barcodes))]))
+    #bbcount['ambiguous'] = [0 for i in range(2)]
+    bbcount['unmatched'] = [0 for j in range(2)]
+    
+    if len(fq1) == len(fq2):
+        for i in range(0, len(fq1)):
+            in1 = io.BufferedReader(gzip.open(fq1[i],'rU'), buffer_size = buffer_max)
+            in2 = io.BufferedReader(gzip.open(fq2[i],'rU'), buffer_size = buffer_max)
+            r1 = FastqGeneralIterator(in1)
+            r2 = FastqGeneralIterator(in2)
+            buffer_i = 0
+            for r in r2:
+                rr = r1.next()
+                
+                tag = r[1][0:8]
+                isbar_flag = False
+                if tag in barcodes_mis_dict:
+                    bb = barcodes_mis_dict[tag]
+                    bbcount[bb[1]][0][bb[0]] += 1
+                    isbar_flag = True
+                else:
+                    bbcount['unmatched'][0] += 1
+
+                rr0 = rr[0]
+                rr1 = rr[1]
+                rr2 = rr[2]
+                # trim tso and polya , and skip read less than 50nt
+                ind_tso = 0
+                ind_polya = len(rr1)
+                ind_flag = False
+                if tso in rr1: # using `in` first to save time in case that most reads did not include tso or polya
+                    ind_tso = rr1.rfind(tso) + tso_n + 3 # sometimes GGG is at the end of tso
+                    ind_flag = True
+                if polya in rr1:
+                    ind_polya = rr1.find(polya)
+                    ind_flag = True
+                if ind_flag:
+                    if((ind_polya - ind_tso) >= min_len):
+                        rr1 = rr1[ind_tso:ind_polya]
+                        rr2 = rr2[ind_tso:ind_polya]
+                    else:
+                        continue
+                if isbar_flag:
+                    rr0 = bb[1] + r[1][8:16] +'_'+ rr0
+                    out1.write('@%s\n%s\n+\n%s\n' %(rr0, rr1, rr2))
+                    bbcount[bb[1]][1][bb[0]] += 1
+                else:
+                    rr0 = r[1][0:16] + '_' + rr0
+                    out2.write('@%s\n%s\n+\n%s\n' %(rr0, rr1, rr2))
+                    bbcount['unmatched'][1] += 1
+            in1.close()
+            in2.close()
+    else:
+        return None
+    out1.flush()
+    out2.flush()
+    out1.close()
+    out2.close()
+    return bbcount
+def mismatch_dict(barcodes, mismatch):
+    # using hash to save time, Great time when iterations heavily used
+    barcodes_mis_dict = {}
+    for bar in barcodes:
+        if mismatch == 0:
+            barcodes_mis_dict[bar] = (0, bar)
+        elif mismatch == 1:
+            for i in range(len(bar)):
+                for b in 'ATGCN':
+                    bar_mis = bar[0:i] + b + bar[i+1:]
+                    barcodes_mis_dict[bar_mis] = (hamming2(bar_mis, bar), bar)
+        elif mismatch == 2:
+            for i in range(len(bar)-1):
+                for j in range(i+1, len(bar)):
+                    for b1 in 'ATGCN':
+                        for b2 in 'ATGCN':
+                            bar_mis = bar[0:i] + b1 + bar[i+1:j] + b2 +bar[j+1:]
+                            barcodes_mis_dict[bar_mis] = (hamming2(bar_mis, bar), bar)
+        else:
+            print 'mismatch should be less than 3 when matching 8bp barcodes!'
+            exit()
+    return barcodes_mis_dict
+   
 def click_exit(log):
     click.echo('There is something wrong, check the log file: ' + log)
     exit()
 def umi_count(sam, txt, barcodes, ambiguous):
-    def parse_tags(tags):
-        gene = "__"
-        for tag in tags:
-            f_tag = tag.split(":")
-            if f_tag[0] == "XF" and f_tag[1] == "Z":
-                gene = f_tag[2]
-        return gene
-        
     umimat = {}
     with open(sam,'r') as alignments:
         for a in alignments:
-            a = a.strip()
-            f = a.split()
-            bar = f[0][0:8]
-            umi = f[0][8:16]
-            tags = f[11:]
-            gene = parse_tags(tags)
-            if gene[0:2] == "__":
-                if (ambiguous and gene[2:11] == 'ambiguous'):
+            gene = a.split('\tXF:Z:')[1].split('\t')[0].strip()
+            if "__" in gene:
+                if (ambiguous and 'ambiguous' in gene):
                     gene = gene.split('[')[1].split(']')[0].split('+')
                 else:
                     continue
+            bar = a[0:8]
+            umi = a[8:16]
             if ambiguous and type(gene) == list:
                 for g in gene:
-                    if g not in umimat.keys():
+                    if g not in umimat:
                         umimat[g] = {}
-                    if bar not in umimat[g].keys():
+                    if bar not in umimat[g]:
                         umimat[g][bar] = {}
-                    if umi not in umimat[g][bar].keys():
+                    if umi not in umimat[g][bar]:
                         umimat[g][bar][umi] = 0
                     umimat[g][bar][umi] += 1
             else:
                 g = gene
-                if g not in umimat.keys():
+                if g not in umimat:
                     umimat[g] = {}
-                if bar not in umimat[g].keys():
+                if bar not in umimat[g]:
                     umimat[g][bar] = {}
-                if umi not in umimat[g][bar].keys():
+                if umi not in umimat[g][bar]:
                     umimat[g][bar][umi] = 0
                 umimat[g][bar][umi] += 1
 
@@ -148,12 +231,13 @@ def umi_count(sam, txt, barcodes, ambiguous):
         for gene in sorted(genes):
             line = gene
             for bar in barcodes:
-                if bar in umimat[gene].keys():
+                if bar in umimat[gene]:
                     uni = str(len(umimat[gene][bar])) + ':' + str(sum(umimat[gene][bar].values()))
                 else:
                     uni = '0:0'
                 line = line + '\t' + uni
             out.write(line + '\n')
+    return True
 
 def get_samples(input, logging):
     # return sampleinfos = {
@@ -248,7 +332,7 @@ def config_check(cf):
                'options'       : ['input', 'output', 'sample', 'thread', 'mismatch', 'minlength', 'barcode', 'tso', 'polya', 'adaptor', 'max_n', 'reference', 'gtf', 're_reference', 're_gtf'],
                'reference'     : [],
                'annotation'    : [],
-               'tools'         : ['fastqc', 'cutadapt', 'hisat2', 'samtools', 'htseq-count', 'bam2fastx', 'bamtools', "rscript"]}
+               'tools'         : ['fastqc', 'cutadapt', 'hisat2', 'samtools', 'htseq-count', 'bam2fastx', 'bamtools', "rscript", 'perl']}
     #Check OPTIONS
     for sec in sec_opt.keys():
         opt = sec_opt[sec]
@@ -387,16 +471,21 @@ def smart(config, input, sample, output, thread, force):
     cf_tool_bam2fastx = cf.get('tools', 'bam2fastx')
     cf_tool_bamtools = cf.get('tools', 'bamtools')
     cf_tool_rscript = cf.get('tools', 'rscript')
+    cf_tool_perl = cf.get('tools', 'perl')
     # just for short
     input = os.path.abspath(cf_opt_input)
     output = os.path.abspath(cf_opt_output)
     mismatch = cf_opt_mismatch
     minlength = cf_opt_minlength
     rscript = cf_tool_rscript
+    
+    perl_paired2single = os.path.join(py_path, 'scripts','paired2single.pl')
+
     if cf_opt_barcode == '':
         cf_opt_barcode = os.path.join(py_path, '96-8bp-barcode')
     barcodes = [s.strip() for s in open(cf_opt_barcode, 'r').readlines()]
     if cf_opt_sample != '':
+        #print cf_opt_sample
         samples = [s.strip() for s in open(cf_opt_sample, 'r').readlines()]
     # create output dir
     if not os.path.isdir(output):
@@ -502,7 +591,6 @@ def smart(config, input, sample, output, thread, force):
     mymkdir(smart_mapping_dir)
     mymkdir(smart_quantify_dir)
     
-    fq_stat = {} # stat barcodes distribution
     for s,p in sampleinfos.items():
         logging.info(s + ' >>> proceesing start...')
         #0. fastqc
@@ -514,19 +602,10 @@ def smart(config, input, sample, output, thread, force):
         logging.info(s + ' >>> 1. paired2single ')
         s_fq_valid = os.path.join(smart_clean_dir, s+'_valid.fastq.gz')
         s_fq_others = os.path.join(smart_clean_dir, s+'_others.fastq.gz')
-        if cf_step_single:
-            s_ret = paired2single(p[0], p[1], barcodes, mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength)
-            if (s_ret == None):
-                logging.warning(s +' ::: 1. paired2single skipped, due to nonzero return!')
-                click_exit(logpath)
-            else:
-                fq_stat[s] = s_ret
-                s_barcode_stat = open(os.path.join(smart_clean_dir , s+'.barcodes.json'), 'w')
-                s_barcode_stat.write(json.dumps(s_ret))  
-                s_barcode_stat.close()  
-                logging.info(s + ' ::: 1. paired2single: finished') # allright
-        else:
-            logging.info(s +' ::: 1. paired2single: skipped as you wish.') 
+        #s_ret = paired2single(p[0], p[1], barcodes, mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength)
+        s_ret = step(s,'%s %s %s %s %s %d %s %s %s %s %d %s' %(cf_tool_perl, perl_paired2single, ','.join(p[0]), ','.join(p[1]), ','.join(barcodes), mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength, os.path.join(smart_clean_dir, s+'.barcodes.json')), cf_step_single, logging, '1. paired2single')
+        if (s_ret == None):
+            click_exit(logpath)
         #2. cutadapt
         s_fq_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.fastq.gz')
         s_log_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.log')
@@ -534,6 +613,8 @@ def smart(config, input, sample, output, thread, force):
         s_ret = step(s, '%s -j %s' %(cf_tool_cutadapt, cf_opt_thread) + ' -a '.join(['']+cf_opt_adaptor) + ' --trim-n -m %d --max-n=%d -o %s %s > %s 2>&1' %(minlength, cf_opt_maxn, s_fq_valid_trim, s_fq_valid, s_log_valid_trim), cf_step_clean, logging, '2. cutadapt')
         if s_ret == None:
             click_exit(logpath)
+        if cf_step_clean:
+            os.remove(s_fq_valid)
         #3. fastqc
         logging.info(s+' >>> 3. clean-fastqc: check clean quality ')
         s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, cf_opt_thread, outs_fastqc_dir, s_fq_valid_trim), cf_step_qc & cf_step_clean, logging, '3. clean-fastqc')
@@ -568,16 +649,26 @@ def smart(config, input, sample, output, thread, force):
         if (s_ret == None):
             click_exit(logpath)
         
-        # 5 htseq-count
-        logging.info(s+' >>> 5 htseq-count ')
+        # 5.1 htseq-count
+        logging.info(s+' >>> 5.1 htseq-count ')
         s_sam_quantify = os.path.join(smart_quantify_dir, s+'.quantify.sam')
         s_txt_quantify = os.path.join(smart_quantify_dir, s+'.quantify.txt')
-        s_ret = step(s, '%s view -h %s | htseq-count -s no -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_bam_mapping, s_sam_quantify, cf.get('annotation', cf_opt_gtf), s_txt_quantify), cf_step_quantify, logging, '5 htseq-count')
+        s_ret = step(s, '%s view -h %s | htseq-count -s no -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_bam_mapping, s_sam_quantify, cf.get('annotation', cf_opt_gtf), s_txt_quantify), cf_step_quantify, logging, '5.1 htseq-count')
         if (s_ret == None):
             click_exit(logpath)
+        # 5.2 UMI count
+        logging.info(s+' >>> 5.2 UMI-count ')
         if cf_step_quantify:
-            umi_count(s_sam_quantify, s_txt_quantify, barcodes, False)
+            s_ret = umi_count(s_sam_quantify, s_txt_quantify, barcodes, False)
             os.remove(s_sam_quantify)
+            if not s_ret:
+                logging.warning(s +' ::: 5.2 UMI-count skipped, due to nonzero return!')
+                click_exit(logpath)
+            else:
+                logging.info(s + ' ::: 5.2 UMI-count: finished') # allright
+        else:
+            logging.info(s +' ::: 5.2 UMI-count: skipped as you wish.') 
+
         # 6.1 unmapped reads
         s_fq_unmapped = os.path.join(smart_clean_dir, s+'_valid_trim.unmapped.fastq.gz')
         logging.info(s+' >>> 6.1 unmapped reads')
@@ -620,11 +711,11 @@ def smart(config, input, sample, output, thread, force):
     if cf_step_summary:
         s = "Summary"
         logging.info(s+' >>> 7 summary results ')
-        rscript_barcode = os.path.join(py_path, 'rscripts','stat_barcodes.R')
-        rscript_mapping = os.path.join(py_path, 'rscripts','stat_mapping.R')
-        rscript_quantify = os.path.join(py_path, 'rscripts','stat_quantify.R')
-        rscript_remapping = os.path.join(py_path, 'rscripts','stat_remapping.R')
-        rscript_requantify = os.path.join(py_path, 'rscripts','stat_requantify.R')
+        rscript_barcode = os.path.join(py_path, 'scripts','stat_barcodes.R')
+        rscript_mapping = os.path.join(py_path, 'scripts','stat_mapping.R')
+        rscript_quantify = os.path.join(py_path, 'scripts','stat_quantify.R')
+        rscript_remapping = os.path.join(py_path, 'scripts','stat_remapping.R')
+        rscript_requantify = os.path.join(py_path, 'scripts','stat_requantify.R')
         logging.info(s+' >>> 7.1 stat barcodes')
         ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_barcode, outs_summary_dir, smart_clean_dir, ','.join(sampleinfos.keys()), ','.join(barcodes)), True, logging, '7.1 stat barcodes')
         if ret ==None:
