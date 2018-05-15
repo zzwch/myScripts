@@ -26,16 +26,25 @@ for(s in samples){
   colnames(tmp) <- c(paste0("split_mis", mismatch), paste0("valid_mis", mismatch))
   rownames(tmp) <- paste0(s, "_sc", 1:length(barcodes))
   stat_barcodes1 <- rbind(stat_barcodes1, tmp)
-  stat_barcodes2 <- rbind(stat_barcodes2, 
+  stat_barcodes2 <- rbind(stat_barcodes2,
                           data.frame(split = c(rowSums(tmp[,1:(ncol(tmp)/2)]), 
-                                               setNames(c(json_data$ambiguous[1], json_data$unmatched[1]),
-                                                        paste0(s,c("_ambiguous","_unmatched")))
-                                               ), 
-                                     valid = c(rowSums(tmp[,(ncol(tmp)/2+1):ncol(tmp)]),
-                                               setNames(c(json_data$ambiguous[2], json_data$unmatched[2]),
-                                                        paste0(s,c("_ambiguous","_unmatched")))
-                                               )
-                                     )
+                                               setNames(c(json_data$unmatched[1]),
+                                                        paste0(s,c("_unmatched")))
+                                              ), 
+                                      valid = c(rowSums(tmp[,(ncol(tmp)/2+1):ncol(tmp)]),
+                                                setNames(c(json_data$unmatched[2]),
+                                                         paste0(s,c("_unmatched")))
+                                                )
+                          )
+                          # data.frame(split = c(rowSums(tmp[,1:(ncol(tmp)/2)]), 
+                          #                      setNames(c(json_data$ambiguous[1], json_data$unmatched[1]),
+                          #                               paste0(s,c("_ambiguous","_unmatched")))
+                          #                      ), 
+                          #            valid = c(rowSums(tmp[,(ncol(tmp)/2+1):ncol(tmp)]),
+                          #                      setNames(c(json_data$ambiguous[2], json_data$unmatched[2]),
+                          #                               paste0(s,c("_ambiguous","_unmatched")))
+                          #                      )
+                          #            )
                           )
 }
 write.table(stat_barcodes1, file = file.path(summary_dir, "stat_barcodes.mismatch.xls"), sep = "\t")
