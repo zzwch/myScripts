@@ -1,5 +1,141 @@
 pal_dolphin <- c('pink','#FF00AE','#A020F1','#000000','#0403E5','#FF8C01','#8B0101','#007502','#FE0000','#FFFF01','#FF99CB','#4A95FB','#61FE69','#9A7A01','#017F8B','#05FDFF','grey','grey','wheat','orange4','red','magenta','gold','#66A61E','skyblue','#D0B38A','#A3D171')
+pal_colorbrewer_spectral <- RColorBrewer::brewer.pal(11, "Spectral")
+pal_colorbrewer_paired <- RColorBrewer::brewer.pal(12, "Paired")
 
+specScore <- function(){
+  # to be done!!!!!!
+  # internal function to calculate AUC values
+  AUCMarkerTest <- function(data1, data2, mygenes, print.bar = TRUE) {
+    myAUC <- unlist(x = lapply(
+      X = mygenes,
+      FUN = function(x) {
+        return(DifferentialAUC(
+          x = as.numeric(x = data1[x, ]),
+          y = as.numeric(x = data2[x, ])
+        ))
+      }
+    ))
+    myAUC[is.na(x = myAUC)] <- 0
+    if (print.bar) {
+      iterate.fxn <- pblapply
+    } else {
+      iterate.fxn <- lapply
+    }
+    avg_diff <- unlist(x = iterate.fxn(
+      X = mygenes,
+      FUN = function(x) {
+        return(
+          ExpMean(
+            x = as.numeric(x = data1[x, ])
+          ) - ExpMean(
+            x = as.numeric(x = data2[x, ])
+          )
+        )
+      }
+    ))
+    toRet <- data.frame(cbind(myAUC, avg_diff), row.names = mygenes)
+    toRet <- toRet[rev(x = order(toRet$myAUC)), ]
+    return(toRet)
+  }
+}
+# internal function to calculate spec values
+DifferentialPrediction <- function(x, y, measure = "spec") {
+  prediction.use <- ROCR::prediction(
+    predictions = c(x, y),
+    labels = c(rep(x = 1, length(x = x)), rep(x = 0, length(x = y))),
+    label.ordering = 0:1
+  )
+  perf.use <- ROCR::performance(prediction.obj = prediction.use, measure = measure)
+  return(round(x = max(perf.use@y.values[[1]]), digits = 3))
+}
+
+autofilterBarcode <- function(umi, plot = T, do.return = F, p.cutoff = 0.5){
+  # do.return - return ggplot object or 'not' (return barcodes filtered umi matrix)
+  # plot - plot the ggplot object or not
+  require(mixtools)
+  require(ggplot2)
+  mixmdl <- normalmixEM(log10(colSums(umi)+1), k = 2)
+  ind_valid <- which(mixmdl$posterior[,which.max(mixmdl$mu)] > 1-p.cutoff)
+  new_umi <- umi[, ind_valid]
+  
+  plot_mix_comps <- function(x, mu, sigma, lam) {
+    lam * dnorm(x, mu, sigma) * length(x)
+  }
+  curve_colors <- c("grey","red")
+  if(mixmdl$mu[1] > mixmdl$mu[2]) curve_colors <- c("red","grey")
+  p1 <- ggplot(data.frame(x = mixmdl$x)) +
+    geom_histogram(aes(x, ..count..), bins = 100, colour = "black", 
+                   fill = "white") +
+    stat_function(geom = "line", fun = plot_mix_comps,
+                  args = list(mixmdl$mu[1], mixmdl$sigma[1], lam = mixmdl$lambda[1]),
+                  colour = curve_colors[1], lwd = 1.5) +
+    stat_function(geom = "line", fun = plot_mix_comps,
+                  args = list(mixmdl$mu[2], mixmdl$sigma[2], lam = mixmdl$lambda[2]),
+                  colour = curve_colors[2], lwd = 1.5) +
+    labs(x = "nUMI (log10 scaled)", y = "nCells", 
+         title = paste0("Histogram of nUMI \n",
+                        "Valid nUMI = ",sum(new_umi),", ", round(sum(new_umi)/sum(umi), digits = 4) * 100,"%;\n",
+                        "Valid nCell = ",ncol(new_umi),"; Average nUMI = ",round(sum(new_umi)/ncol(new_umi), digits = 1))) + 
+    theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+  ggData2 <- cbind(reshape2::colsplit(colnames(umi), "_sc", names = c("Library", "Barcode")), valid = "0")
+  ggData2$valid[ind_valid] <- "1"
+  p2 <- ggplot(ggData2)+ geom_tile(mapping = aes(x = Barcode, y = Library, fill = valid)) +
+    scale_fill_manual(values = c("grey","red"))+labs(title = "Barcode Usage") + 
+    theme_bw() + theme(plot.title = element_text(hjust = 0.5))
+  if(plot) gridExtra::grid.arrange(p1,p2, nrow = 1)
+  if(do.return) return(list(p1,p2))
+  
+  return(new_umi)
+}
+
+dptPlot <- function(dpt, root = NULL, paths_to = integer(0L), dcs = 1:2, 
+                    divide = integer(0L), w_width = 0.1, annot, col_by = "dpt", shape_by = "branch",
+                    col_path = c("red","darkblue"), col_tip = "red", 
+                    col = NULL, legend_main = col_by){
+  require(ggplot2)
+  dpt_flat <- branch_divide(dpt, divide)
+  if (!is.null(root) && length(root) < 1L) 
+    stop("root needs to be specified")
+  root <- {if (is.null(root)) min(dpt_flat@branch[, 1], na.rm = TRUE)
+           else as.integer(root)}
+  paths_to <- as.integer(paths_to)
+  if (length(root) > 1L && length(paths_to) > 0L) 
+    stop("(length(root), length(paths_to)) needs to be (1, 0-n) or (2-n, 0), but is (", 
+         length(root), ", ", length(paths_to), ")")
+  stopifnot(length(dcs) %in% 2:3)
+  if (length(root) > 1L && length(paths_to) == 0L) {
+    paths_to <- root[-1]
+    root <- root[[1]]
+  }
+  
+  # xy
+  eiv <- dpt_flat@dm@eigenvectors[,dcs,drop = F]
+  #time
+  branch_idx <- dpt_flat@branch[, 1L] == root
+  stopifnot(any(branch_idx, na.rm = T))
+  tip_cells <- which(branch_idx & dpt_flat@tips[, 1L])
+  if (length(tip_cells) == 0L) tip_cells <- which(branch_idx)
+  pt <- dpt[tip_cells[[1L]], ]
+  #branch
+  brc <- dpt_flat@branch[,1]
+  
+  # annot
+  annot <- pData(dpt_flat@dm@data_env$data)
+  ggData <- as.data.frame(cbind(eiv, branch = paste0("branch",brc), dpt = pt, annot))
+  ggplot(ggData) + geom_point(mapping = aes_string(x = "DC1", y = "DC2", color = col_by, shape = shape_by), size = 2) +
+    theme(axis.text = element_blank(), axis.ticks = element_blank())
+}
+seuratPCAtopGene <- function(pbmc, pcs = 1, top = 20, pc.use.full = T, plot = T, plot.scale = F, row.scale = F){
+  pca <- pbmc@dr$pca
+  pc <- {if(pc.use.full) pca@gene.loadings.full else pca@gene.loadings}
+  phData <- {if(plot.scale) pbmc@scale.data else pbmc@data}
+  genescores <- sort(pc[,pcs], decreasing = (top > 0))[1:abs(top)]
+  
+  pheatmap::pheatmap(phData[names(genescores), order(pca@cell.embeddings[,pcs]), drop = F], cluster_rows = F, cluster_cols = F,
+                     scale = ifelse(row.scale, "row","none"),
+                     annotation_col = as.data.frame(pca@cell.embeddings[,pcs, drop = F]), show_colnames = F)
+  return(genescores)
+}
 ggGeneData <- function(expr, annot, genes, annot.col, annot.col.id.vars = NULL){
   require(reshape2)
   annot.col = unique(c(annot.col, annot.col.id.vars))
@@ -265,6 +401,13 @@ AddAVscore <- function(pbmc, org = c("mouse","human"), gene.max = NULL, add.dr =
   }
   pbmc
 }
+seuratAddDPT <- function(pbmc, dpt){
+  pbmc@dr$dpt <- pbmc@dr$tsne
+  tmp <- as.matrix(dpt@dm@eigenvectors)
+  rownames(tmp) <- rownames(pData(dpt@dm@data_env$data))
+  pbmc@dr$dpt@cell.embeddings <- tmp[rownames(pbmc@dr$tsne@cell.embeddings),]
+  pbmc
+}
 myGenePlot <- function(pbmc, gene1, gene2, use.scaled = F, group.by = NULL, cols.use = colors(),...){
   group.colors <- if(is.null(group.by)) pbmc@ident else pbmc@meta.data[[group.by]]
   plot(FetchData(pbmc, vars.all = gene1, use.scaled = use.scaled)[,1], FetchData(pbmc, vars.all = gene2,use.scaled = use.scaled)[,1],
@@ -285,6 +428,10 @@ myFeaturePlot <- function(pbmc, features.plot, nrow = NULL, ncol = NULL, dr = c(
   if(dr == 'pca'){
     xx <- "PC1"
     yy <- "PC2"
+  }
+  if(dr == 'dpt'){
+    xx <- "DC1"
+    yy <- "DC2"
   }
   if(dr == 'ccscore'){
     xx <- "G1S.Score"
@@ -328,7 +475,7 @@ ggHsegments <- function(tab, y = 0, group){
   seg[,"yend"] <- y
   return(seg)
 }
-myBarPlot <- function(pbmc, features.plot, title = NULL, nrow = NULL, ncol = NULL, group.by = NULL, bar.width = 0.5,
+myBarPlot <- function(pbmc, features.plot, title = NULL, nrow = NULL, ncol = NULL, group.by = NULL, bar.width = 0.5, x.order = NULL,
                       ymax = c("auto",10), facet.scales = c("fixed", "free","free_x","free_y"),cols.use = pal_dolphin, use.scale = F){
   require(ggplot2)
   require(reshape2)
@@ -341,7 +488,7 @@ myBarPlot <- function(pbmc, features.plot, title = NULL, nrow = NULL, ncol = NUL
   ggData <- cbind(pbmc@meta.data[,group.by, drop = F], t(expr)[rownames(pbmc@meta.data), features.plot, drop = F])
   ggData$my.rownames <- rownames(ggData)
   set.seed(666)
-  ggData$my.order <- rank(ggData[[group.by]],ties.method = "random")
+  ggData$my.order <- {if(is.null(x.order)) rank(ggData[[group.by]],ties.method = "random") else x.order}
   ggData <- melt(ggData, id.vars = c("my.rownames","my.order", group.by), variable.name = "Select_feature")
   ggSeg <- ggHsegments(table(pbmc@meta.data[[group.by]]), y = 0, group = group.by)
   
@@ -509,6 +656,41 @@ myGOEnrich <- function(pbmc.markers, clusters = NULL, width = 600, height = 350)
     print(dotplot(engo, title = paste0("GO_BP results of Cluster",i))+ scale_y_discrete(labels = function(x) str_wrap(x, width = 60)))
     dev.off()
   }
+}
+
+geneGOEnrich <- function(genes, guess.org = T, width = 600, height = 350){
+  if(guess.org){
+    if(sum(toupper(genes) == genes) > 0.8*length(genes))
+      org <- "human"
+    else
+      org <- "mouse"
+  }
+  require(clusterProfiler)
+  require(stringr)
+  gogenes <- genes
+  
+  if(org == "human"){
+    require(org.Hs.eg.db) 
+    engo <- enrichGO(gene         = gogenes,
+                     OrgDb         = org.Hs.eg.db,
+                     keyType       = 'SYMBOL',
+                     ont           = "BP",
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.01,
+                     qvalueCutoff  = 0.05)
+  }
+  else{
+    require(org.Mm.eg.db)
+    engo <- enrichGO(gene         = gogenes,
+                     OrgDb         = org.Mm.eg.db,
+                     keyType       = 'SYMBOL',
+                     ont           = "BP",
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.01,
+                     qvalueCutoff  = 0.05)
+    
+  } 
+  print(dotplot(engo, title = paste0("GO_BP results of Select Genes"))+ scale_y_discrete(labels = function(x) str_wrap(x, width = 60)))
 }
 # convert seurat2 Object to Rdata needed by sciDV (a in-house shiny-server) 
 seurat2idv <- function(pbmc = NULL, subcat = NULL, colors = NULL, save.file = NULL){
