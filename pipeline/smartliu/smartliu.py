@@ -3,7 +3,6 @@ import ConfigParser
 import logging
 import os, re  
 import multiprocessing
-#[deprecated] from Bio import SeqIO
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import gzip
 import json
@@ -45,27 +44,30 @@ def run_per_sample(s, p,cf, logging, mp_thread_per_sample, logpath, perl_paired2
     cf_tool_bamtools = cf.get('tools', 'bamtools')
     cf_tool_rscript = cf.get('tools', 'rscript')
     cf_tool_perl = cf.get('tools', 'perl')
+    cf_tool_multiqc = cf.get('tools', 'multiqc')
     # just for short
     input = os.path.abspath(cf_opt_input)
     output = os.path.abspath(cf_opt_output)
     mismatch = cf_opt_mismatch
     minlength = cf_opt_minlength
     rscript = cf_tool_rscript
-    
-    outs_dir = os.path.join(output, 'outs')
-    outs_fastqc_dir = os.path.join(outs_dir, 'fastqc')
-    outs_summary_dir = os.path.join(outs_dir, 'summary')
-    
-    smart_dir = output #os.path.join(output, 'smart')
+
+    #
+    smart_dir = output
+    smart_fastqc_dir = os.path.join(smart_dir, 'fastqc')
     smart_clean_dir = os.path.join(smart_dir, 'clean_data')
-    smart_mapping_dir = os.path.join(smart_dir, 'results_hisat2')
-    smart_quantify_dir = os.path.join(smart_dir, 'results_count')
+    smart_mapping_dir = os.path.join(smart_dir, 'mapping_to_' + cf_opt_ref)
+    smart_quantify_dir = os.path.join(smart_mapping_dir, 'count_with_' + cf_opt_gtf)
+    
+    smart_summary_dir = os.path.join(smart_dir, 'summary')
+    smart_outs_dir = os.path.join(smart_dir, 'outs')
+    
     
     print s
     logging.info(s + ' >>> proceesing start...')
     #0. fastqc
     logging.info(s + ' >>> 0. fastqc: check sequencing quality')
-    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, outs_fastqc_dir, ' '.join(p[0] + p[1])), cf_step_qc, logging, '0. fastqc')
+    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, smart_fastqc_dir, ' '.join(p[0] + p[1])), cf_step_qc, logging, '0. fastqc')
     if s_ret == None:
         click_exit(logpath)
     #1. paird2single
@@ -87,7 +89,7 @@ def run_per_sample(s, p,cf, logging, mp_thread_per_sample, logpath, perl_paired2
         os.remove(s_fq_valid)
     #3. fastqc
     logging.info(s+' >>> 3. clean-fastqc: check clean quality ')
-    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, outs_fastqc_dir, s_fq_valid_trim), cf_step_qc & cf_step_clean, logging, '3. clean-fastqc')
+    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, smart_fastqc_dir, s_fq_valid_trim), cf_step_qc & cf_step_clean, logging, '3. clean-fastqc')
     if s_ret == None:
         click_exit(logpath)
     #4.1 hisat2
@@ -163,12 +165,12 @@ def run_per_sample(s, p,cf, logging, mp_thread_per_sample, logpath, perl_paired2
             s_remapping_cmd[5] = 'rm %s %s %s' %(s_sam_remapping, s_bam_remapping, s_sorted_bam_remapping)
             
             logging.info(s+' >>> 6.2 unmapped remapping to '+s_reref)
-            s_ret = step(s, ' && '.join(s_remapping_cmd), cf_step_remapping, logging, '6.2 unmapped remapping to' + s_reref)
+            s_ret = step(s, ' && '.join(s_remapping_cmd), cf_step_remapping, logging, '6.2 unmapped remapping to ' + s_reref)
             if s_ret == None:
                 click_exit(logpath)
             s_regtf = cf_opt_regtf[i]
-            s_sam_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.sam')
-            s_txt_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.txt')
+            s_sam_requantify = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_regtf +'.requantify.sam')
+            s_txt_requantify = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_regtf +'.requantify.txt')
             logging.info(s+' >>> 6.3 requantify by '+s_regtf)
             s_ret = step(s, '%s view -h %s | %s -s no --nonunique all -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_filtered_bam_remapping, cf_tool_htseq, s_sam_requantify, cf.get('annotation', s_regtf), s_txt_requantify), cf_step_requantify, logging, '6.3 requantify by '+ s_regtf)
             if s_ret == None:
@@ -670,6 +672,8 @@ def smart(config, input, sample, output, thread, force):
     cf_tool_bamtools = cf.get('tools', 'bamtools')
     cf_tool_rscript = cf.get('tools', 'rscript')
     cf_tool_perl = cf.get('tools', 'perl')
+    cf_tool_multiqc = cf.get('tools', 'multiqc')
+    
     # just for short
     input = os.path.abspath(cf_opt_input)
     output = os.path.abspath(cf_opt_output)
@@ -782,27 +786,23 @@ def smart(config, input, sample, output, thread, force):
     #    logging.warning('cannot create the link of input in the output dir!')
     #    click_exit(logpath)
     
-    outs_dir = os.path.join(output, 'outs')
-    outs_fastqc_dir = os.path.join(outs_dir, 'fastqc')
-    outs_summary_dir = os.path.join(outs_dir, 'summary')
-    
-    mymkdir(outs_dir)
-    mymkdir(outs_fastqc_dir)
-    mymkdir(outs_summary_dir)
-    
-    smart_dir = output #os.path.join(output, 'smart')
+    smart_dir = output
+    smart_fastqc_dir = os.path.join(smart_dir, 'fastqc')
     smart_clean_dir = os.path.join(smart_dir, 'clean_data')
-    smart_mapping_dir = os.path.join(smart_dir, 'results_hisat2')
-    smart_quantify_dir = os.path.join(smart_dir, 'results_count')
+    smart_mapping_dir = os.path.join(smart_dir, 'mapping_to_' + cf_opt_ref)
+    smart_quantify_dir = os.path.join(smart_mapping_dir, 'count_with_' + cf_opt_gtf)
+    
+    smart_summary_dir = os.path.join(smart_dir, 'summary')
+    smart_outs_dir = os.path.join(smart_dir, 'outs')
 
     mymkdir(smart_dir)
+    mymkdir(smart_fastqc_dir)
     mymkdir(smart_clean_dir)
     mymkdir(smart_mapping_dir)
     mymkdir(smart_quantify_dir)
-    
-    # wrap whole pipeline to an inner function
-    
-    
+    mymkdir(smart_summary_dir)
+    mymkdir(smart_outs_dir)
+
     #using multiprocessing to remedy time-consuming fastq barcode-spliting and htseq-count, which can only be run in single thread mode and typically takes 5 hours one sample.
 
     # pool = multiprocessing.Pool(processes=mp_processes)
@@ -828,18 +828,19 @@ def smart(config, input, sample, output, thread, force):
         rscript_quantify = os.path.join(py_path, 'scripts','stat_quantify.R')
         rscript_remapping = os.path.join(py_path, 'scripts','stat_remapping.R')
         rscript_requantify = os.path.join(py_path, 'scripts','stat_requantify.R')
+        rscript_outs = os.path.join(py_path, 'scripts','stat_outs.R')
         logging.info(s+' >>> 7.1 stat barcodes')
-        ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_barcode, outs_summary_dir, smart_clean_dir, ','.join(sampleinfos.keys()), ','.join(barcodes)), True, logging, '7.1 stat barcodes')
+        ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_barcode, smart_summary_dir, smart_clean_dir, ','.join(sampleinfos.keys()), ','.join(barcodes)), True, logging, '7.1 stat barcodes')
         if ret ==None:
             logging.warning(s +' ::: skip stat_barcodes due to non-zero return?')
             #click_exit(logpath)
         logging.info(s+' >>> 7.2 stat mapping')
-        ret = step(s,'%s %s %s %s %s' %(rscript, rscript_mapping, outs_summary_dir, smart_mapping_dir, ','.join(sampleinfos.keys())), True, logging, '7.2 stat mapping')
+        ret = step(s,'%s %s %s %s %s' %(rscript, rscript_mapping, smart_summary_dir, smart_mapping_dir, ','.join(sampleinfos.keys())), True, logging, '7.2 stat mapping')
         if ret ==None:
             logging.warning(s +' ::: skip stat_mapping due to non-zero return?')
             #click_exit(logpath)
         logging.info(s+' >>> 7.3 stat quantify')
-        ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_quantify, outs_summary_dir, smart_quantify_dir, ','.join(sampleinfos.keys()), cf.get('annotation', cf_opt_gtf)), True, logging, '7.3 stat quantify')
+        ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_quantify, smart_summary_dir, smart_quantify_dir, ','.join(sampleinfos.keys()), cf.get('annotation', cf_opt_gtf)), True, logging, '7.3 stat quantify')
         if ret ==None:
             logging.warning(s +' ::: skip stat_quantify due to non-zero return?')
             #click_exit(logpath)
@@ -848,15 +849,27 @@ def smart(config, input, sample, output, thread, force):
                 s_reref = cf_opt_reref[i]
                 s_regtf = cf_opt_regtf[i]
                 logging.info(s+' >>> 7.4 stat remapping')
-                ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_remapping, outs_summary_dir, smart_mapping_dir, ','.join(sampleinfos.keys()), s_reref), True, logging, '7.4 stat remapping')
+                ret = step(s,'%s %s %s %s %s %s' %(rscript, rscript_remapping, smart_summary_dir, smart_mapping_dir, ','.join(sampleinfos.keys()), s_reref), True, logging, '7.4 stat remapping')
                 if ret ==None:
                     logging.warning(s +' ::: skip stat_remapping due to non-zero return?')
                     #click_exit(logpath)
                 logging.info(s+' >>> 7.5 stat requantify')
-                ret = step(s,'%s %s %s %s %s %s %s' %(rscript, rscript_requantify, outs_summary_dir, smart_quantify_dir, ','.join(sampleinfos.keys()), cf.get('annotation', s_regtf), s_regtf), True, logging, '7.5 stat requantify')
+                ret = step(s,'%s %s %s %s %s %s %s' %(rscript, rscript_requantify, smart_summary_dir, smart_mapping_dir, ','.join(sampleinfos.keys()), cf.get('annotation', s_regtf), s_regtf), True, logging, '7.5 stat requantify')
                 if ret ==None:
                     logging.warning(s +' ::: skip stat_requantify due to non-zero return?')
                     #click_exit(logpath)
+        # multiqc
+        s = "outs"
+        logging.info(s+' >>> 8.1 multiqc')
+        ret = step(s,'%s -f -d -dd 1 -i %s -o %s -m fastqc -m cutadapt -m bowtie2 %s' %(cf_tool_multiqc, os.path.basename(smart_dir), smart_outs_dir, smart_dir), True, logging, '8.1 outs multiqc')
+        if ret ==None:
+            logging.warning(s +' ::: skip outs_multiqc due to non-zero return?')
+            #click_exit(logpath)
+        logging.info(s+' >>> 8.2 outs')
+        ret = step(s,'%s %s %s %s' %(rscript, rscript_outs, smart_summary_dir, smart_outs_dir), True, logging, '8.2 outs')
+        if ret ==None:
+            logging.warning(s +' ::: skip outs due to non-zero return?')
+            #click_exit(logpath)
     logging.info('All DONE. Cheers!')
 if __name__ == '__main__':
     smart()
