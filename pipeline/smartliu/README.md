@@ -9,4 +9,4 @@ see [tools] section in configs/mm10.config file to find more information.
 You may use `conda install your-tool-name` to install them on your Linux server.
 2. genome and trancscriptome index files build by hisat2-build
 ### Usage
-`smartliu -c mm10`
+`smartliu -c mm10 -i raw_data -o smart_mm10 -p n_samples`
