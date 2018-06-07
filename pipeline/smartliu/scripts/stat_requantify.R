@@ -25,9 +25,9 @@ for(s in samples){
   tmp <- readLines(s_quantify)
   if(length(tmp) == 0) next()
   m1 <- matrix(unlist(strsplit(gsub(pattern = ":[0-9]+", "", tmp), split = "\t")), nrow = length(tmp), byrow = T)
-  rownames(m1) <- m1[,1];  m1 <- m1[,-1]; mode(m1) <- "numeric"
+  rownames(m1) <- m1[,1];  m1 <- m1[,-1,drop = F]; mode(m1) <- "numeric"
   m2 <- matrix(unlist(strsplit(gsub(pattern = "[0-9]+:", "", tmp), split = "\t")), nrow = length(tmp), byrow = T)
-  rownames(m2) <- m2[,1];  m2 <- m2[,-1]; mode(m2) <- "numeric"
+  rownames(m2) <- m2[,1];  m2 <- m2[,-1,drop = F]; mode(m2) <- "numeric"
   
   colnames(m1) <- paste0(s,"_sc", 1:ncol(m1))
   for(i in colnames(m1)) genemat[[i]] <- 0
@@ -37,5 +37,6 @@ for(s in samples){
   for(i in colnames(m2)) readmat[[i]] <- 0
   readmat[rownames(m2), colnames(m2)] <- m2
 }
-write.table(genemat, file = file.path(summary_dir, "stat_quantify.UMI.xls"), sep = "\t")
-write.table(readmat, file = file.path(summary_dir, "stat_quantify.read.xls"), sep = "\t")
+s_regtf <- strsplit(s_quantify, "\\.")[[1]]
+write.table(genemat, file = file.path(summary_dir, paste0("stat_",basename(quantify_dir),".recount_with_",s_regtf[length(s_regtf)-2],".umi.txt")), sep = "\t")
+write.table(readmat, file = file.path(summary_dir, paste0("stat_",basename(quantify_dir),".recount_with_",s_regtf[length(s_regtf)-2],".read.txt")), sep = "\t")

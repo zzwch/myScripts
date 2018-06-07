@@ -1,11 +1,11 @@
+#Args <- c(1:5, smart_summary_dir, smart_clean_dir, ','.join(sampleinfos.keys()), ','.join(barcodes))
+
 Args <- commandArgs()
 nArgs <- length(Args)
-
 if(nArgs != 9){
   cat("Example: Rscript stat_barcodes.R summary_dir clean_dir samples barcodes")
   stop("please set sufficient Arguements")
 }
-
 ###
 # user settings
 ###
@@ -50,5 +50,5 @@ for(s in samples){
 
 stat_barcodes1 <- cbind(cell_id = rownames(stat_barcodes1), stat_barcodes1)
 stat_barcodes2 <- cbind(cell_id = rownames(stat_barcodes2), stat_barcodes2)
-write.table(stat_barcodes1, file = file.path(summary_dir, "stat_barcodes.mismatch.xls"), sep = "\t",row.names = F)
-write.table(stat_barcodes2, file = file.path(summary_dir, "stat_barcodes.xls"), sep = "\t",row.names = F)
+write.table(stat_barcodes1, file = file.path(summary_dir, "stat_barcodes.mismatch.txt"), sep = "\t",row.names = F)
+write.table(stat_barcodes2, file = file.path(summary_dir, "stat_barcodes.txt"), sep = "\t",row.names = F)
