@@ -2,12 +2,181 @@ import click
 import ConfigParser
 import logging
 import os, re  
-from multiprocessing import cpu_count
+import multiprocessing
 #[deprecated] from Bio import SeqIO
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import gzip
 import json
 import io
+import time
+def run_per_sample(s, p,cf, logging, mp_thread_per_sample, logpath, perl_paired2single, barcodes):
+    # get option settings 
+    cf_step_qc = cf.getboolean('execute_steps', 'quality_contrl')
+    cf_step_single = cf.getboolean('execute_steps', 'paired2single')
+    cf_step_clean = cf.getboolean('execute_steps', 'clean_reads')
+    cf_step_mapping = cf.getboolean('execute_steps', 'read_mapping')
+    cf_step_quantify = cf.getboolean('execute_steps', 'gene_quantify')
+    cf_step_remapping = cf.getboolean('execute_steps', 'unmapped_remapping')
+    cf_step_requantify = cf.getboolean('execute_steps', 'unmapped_requantify')
+    cf_step_summary = cf.getboolean('execute_steps', 'summary_results')
+    
+    cf_opt_input = cf.get('options', 'input')
+    cf_opt_output = cf.get('options', 'output')
+    cf_opt_sample = cf.get('options', 'sample')
+    cf_opt_thread = cf.getint('options', 'thread')
+    cf_opt_mismatch = cf.getint('options', 'mismatch')
+    cf_opt_minlength = cf.getint('options', 'minlength')
+    cf_opt_barcode = cf.get('options', 'barcode')
+    cf_opt_tso = cf.get('options', 'tso')
+    cf_opt_polya = cf.get('options', 'polya')
+    cf_opt_adaptor = cf.get('options', 'adaptor').split(',')
+    cf_opt_maxn = cf.getfloat('options', 'max_n')
+    cf_opt_ref = cf.get('options', 'reference')
+    cf_opt_gtf = cf.get('options', 'gtf')
+    cf_opt_reref = cf.get('options', 're_reference').split(',')
+    cf_opt_regtf = cf.get('options', 're_gtf').split(',')
+    
+    cf_tool_fastqc = cf.get('tools', 'fastqc')
+    cf_tool_cutadapt = cf.get('tools', 'cutadapt')
+    cf_tool_hisat2 = cf.get('tools', 'hisat2')
+    cf_tool_samtools = cf.get('tools', 'samtools')
+    cf_tool_htseq = cf.get('tools', 'htseq-count')
+    cf_tool_bam2fastx = cf.get('tools', 'bam2fastx')
+    cf_tool_bamtools = cf.get('tools', 'bamtools')
+    cf_tool_rscript = cf.get('tools', 'rscript')
+    cf_tool_perl = cf.get('tools', 'perl')
+    # just for short
+    input = os.path.abspath(cf_opt_input)
+    output = os.path.abspath(cf_opt_output)
+    mismatch = cf_opt_mismatch
+    minlength = cf_opt_minlength
+    rscript = cf_tool_rscript
+    
+    outs_dir = os.path.join(output, 'outs')
+    outs_fastqc_dir = os.path.join(outs_dir, 'fastqc')
+    outs_summary_dir = os.path.join(outs_dir, 'summary')
+    
+    smart_dir = output #os.path.join(output, 'smart')
+    smart_clean_dir = os.path.join(smart_dir, 'clean_data')
+    smart_mapping_dir = os.path.join(smart_dir, 'results_hisat2')
+    smart_quantify_dir = os.path.join(smart_dir, 'results_count')
+    
+    print s
+    logging.info(s + ' >>> proceesing start...')
+    #0. fastqc
+    logging.info(s + ' >>> 0. fastqc: check sequencing quality')
+    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, outs_fastqc_dir, ' '.join(p[0] + p[1])), cf_step_qc, logging, '0. fastqc')
+    if s_ret == None:
+        click_exit(logpath)
+    #1. paird2single
+    logging.info(s + ' >>> 1. paired2single ')
+    s_fq_valid = os.path.join(smart_clean_dir, s+'_valid.fastq.gz')
+    s_fq_others = os.path.join(smart_clean_dir, s+'_others.fastq.gz')
+    #s_ret = paired2single(p[0], p[1], barcodes, mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength)
+    s_ret = step(s,'%s %s %s %s %s %d %s %s %s %s %d %s' %(cf_tool_perl, perl_paired2single, ','.join(p[0]), ','.join(p[1]), ','.join(barcodes), mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength, os.path.join(smart_clean_dir, s+'.barcodes.json')), cf_step_single, logging, '1. paired2single')
+    if (s_ret == None):
+        click_exit(logpath)
+    #2. cutadapt
+    s_fq_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.fastq.gz')
+    s_log_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.log')
+    logging.info(s+' >>> 2. cutadapt: cleaning data (trim adapter and remove low quality )')
+    s_ret = step(s, '%s -j %s' %(cf_tool_cutadapt, int(round(mp_thread_per_sample/2.0))) + ' -a '.join(['']+cf_opt_adaptor) + ' --trim-n -m %d --max-n=%d -o %s %s > %s 2>&1' %(minlength, cf_opt_maxn, s_fq_valid_trim, s_fq_valid, s_log_valid_trim), cf_step_clean, logging, '2. cutadapt')
+    if s_ret == None:
+        click_exit(logpath)
+    if cf_step_clean:
+        os.remove(s_fq_valid)
+    #3. fastqc
+    logging.info(s+' >>> 3. clean-fastqc: check clean quality ')
+    s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, mp_thread_per_sample, outs_fastqc_dir, s_fq_valid_trim), cf_step_qc & cf_step_clean, logging, '3. clean-fastqc')
+    if s_ret == None:
+        click_exit(logpath)
+    #4.1 hisat2
+    s_summary_mapping = os.path.join(smart_mapping_dir, s+'.align_summary.txt')
+    s_sam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.sam')
+    logging.info(s+' >>> 4.1 hisat2: clean reads mapping to reference')
+    s_ret = step(s, '%s -p %s --summary-file %s -x %s -S %s -U %s ' %(cf_tool_hisat2, mp_thread_per_sample, s_summary_mapping, cf.get('reference', cf_opt_ref), s_sam_mapping, s_fq_valid_trim), cf_step_mapping, logging, '4.1 hisat2')
+    if (s_ret == None):
+        click_exit(logpath)
+    # 4.2 samtools view
+    s_bam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.bam')
+    logging.info(s+' >>> 4.2 samtools view: sam to bam')
+    s_ret = step(s, '%s view -h -b --threads %d -o %s %s' %(cf_tool_samtools, mp_thread_per_sample-1, s_bam_mapping, s_sam_mapping), cf_step_mapping, logging, '4.2 samtools view')
+    if (s_ret == None):
+        click_exit(logpath)
+    if cf_step_mapping:
+        os.remove(s_sam_mapping)
+    # 4.3 samtools sort
+    s_sorted_bam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.sorted.bam')
+    logging.info(s+' >>> 4.3 samtools sort: sort bam')
+    s_ret = step(s, '%s sort --threads %d -o %s %s' %(cf_tool_samtools, mp_thread_per_sample-1, s_sorted_bam_mapping, s_bam_mapping), cf_step_mapping, logging, '4.3 samtools view')
+    if (s_ret == None):
+        click_exit(logpath)
+    if cf_step_mapping:
+        os.remove(s_bam_mapping)
+    #4.4 samtools index
+    logging.info(s+' >>> 4.4 samtools index ')
+    s_ret = step(s, '%s index -@ %d %s' %(cf_tool_samtools, mp_thread_per_sample-1, s_sorted_bam_mapping), cf_step_mapping, logging, '4.4 samtools index')
+    if (s_ret == None):
+        click_exit(logpath)
+    
+    # 5.1 htseq-count
+    logging.info(s+' >>> 5.1 htseq-count ')
+    s_sam_quantify = os.path.join(smart_quantify_dir, s+'.quantify.sam')
+    s_txt_quantify = os.path.join(smart_quantify_dir, s+'.quantify.txt')
+    s_ret = step(s, '%s view -h %s | htseq-count -s no -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_bam_mapping, s_sam_quantify, cf.get('annotation', cf_opt_gtf), s_txt_quantify), cf_step_quantify, logging, '5.1 htseq-count')
+    if (s_ret == None):
+        click_exit(logpath)
+    # 5.2 UMI count
+    logging.info(s+' >>> 5.2 UMI-count ')
+    if cf_step_quantify:
+        s_ret = umi_count(s_sam_quantify, s_txt_quantify, barcodes, False)
+        os.remove(s_sam_quantify)
+        if not s_ret:
+            logging.warning(s +' ::: 5.2 UMI-count skipped, due to nonzero return!')
+            click_exit(logpath)
+        else:
+            logging.info(s + ' ::: 5.2 UMI-count: finished') # allright
+    else:
+        logging.info(s +' ::: 5.2 UMI-count: skipped as you wish.') 
+        
+    # 6.1 unmapped reads
+    s_fq_unmapped = os.path.join(smart_clean_dir, s+'_valid_trim.unmapped.fastq.gz')
+    logging.info(s+' >>> 6.1 unmapped reads')
+    s_ret = step(s, '%s -o %s %s' %(cf_tool_bam2fastx, s_fq_unmapped, s_sorted_bam_mapping), cf_step_remapping, logging, '6.1 unmapped reads')
+    if (s_ret == None):
+        click_exit(logpath)
+    if cf_step_remapping or cf_step_requantify:
+        for i in range(len(cf_opt_reref)):
+            s_reref = cf_opt_reref[i]
+            s_reref_path = cf.get('reference', s_reref)
+            s_log_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.align_summary.txt')
+            s_sam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sam')
+            s_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.bam')
+            s_sorted_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sorted.bam')
+            s_sorted_filtered_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sorted_filtered.bam')
+            s_remapping_cmd = ['' for j in range(6)]
+            s_remapping_cmd[0] = '%s -p %d --no-softclip --summary-file %s -x %s --no-unal -S %s -U %s' %(cf_tool_hisat2, mp_thread_per_sample, s_log_remapping, s_reref_path, s_sam_remapping, s_fq_unmapped)
+            s_remapping_cmd[1] = '%s view --threads %d -b -o %s %s' %(cf_tool_samtools, mp_thread_per_sample, s_bam_remapping, s_sam_remapping)
+            s_remapping_cmd[2] = '%s sort --threads %d -o %s %s' %(cf_tool_samtools, mp_thread_per_sample, s_sorted_bam_remapping, s_bam_remapping)
+            s_remapping_cmd[3] = '%s filter -tag XM:0 -in %s -out %s' %(cf_tool_bamtools, s_sorted_bam_remapping, s_sorted_filtered_bam_remapping)
+            s_remapping_cmd[4] = '%s index -@ %d %s' %(cf_tool_samtools, mp_thread_per_sample, s_sorted_filtered_bam_remapping)
+            s_remapping_cmd[5] = 'rm %s %s %s' %(s_sam_remapping, s_bam_remapping, s_sorted_bam_remapping)
+            
+            logging.info(s+' >>> 6.2 unmapped remapping to '+s_reref)
+            s_ret = step(s, ' && '.join(s_remapping_cmd), cf_step_remapping, logging, '6.2 unmapped remapping to' + s_reref)
+            if s_ret == None:
+                click_exit(logpath)
+            s_regtf = cf_opt_regtf[i]
+            s_sam_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.sam')
+            s_txt_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.txt')
+            logging.info(s+' >>> 6.3 requantify by '+s_regtf)
+            s_ret = step(s, '%s view -h %s | %s -s no --nonunique all -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_filtered_bam_remapping, cf_tool_htseq, s_sam_requantify, cf.get('annotation', s_regtf), s_txt_requantify), cf_step_requantify, logging, '6.3 requantify by '+ s_regtf)
+            if s_ret == None:
+                logging.warning(s +' ::: skip requantify by ' + s_regtf + ', due to None matched reads?')
+                #click_exit(logpath)
+            if cf_step_requantify:
+                umi_count(s_sam_requantify, s_txt_requantify, barcodes, True)
+                os.remove(s_sam_requantify)
 def mymkdir(dir):
     if not os.path.isdir(dir):
         os.mkdir(dir)
@@ -102,7 +271,7 @@ def deprecated_paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, poly
     out1.close()
     out2.close()
     return bbcount
-
+#[deprecated]
 def paired2single(fq1, fq2, barcodes, mismatch, fq, others, tso, polya, min_len):
     buffer_max = 100000000
     mismatch = int(mismatch) # in case of str
@@ -196,16 +365,29 @@ def click_exit(log):
     click.echo('There is something wrong, check the log file: ' + log)
     exit()
 def umi_count(sam, txt, barcodes, ambiguous):
+    mapmat = {}
     umimat = {}
     with open(sam,'r') as alignments:
         for a in alignments:
-            gene = a.split('\tXF:Z:')[1].split('\t')[0].strip()
+            bar = a[0:8]
+            asplit = a.split('\t')
+            
+            # mapping stat
+            mapflag = asplit[1]
+            if mapflag not in mapmat:
+                mapmat[mapflag] = {}
+            if bar not in mapmat[mapflag]:
+                mapmat[mapflag][bar] = 0
+            mapmat[mapflag][bar] += 1
+            
+            # gene stat
+            gene = asplit[-1].strip().split(':')[2]
             if "__" in gene:
                 if (ambiguous and 'ambiguous' in gene):
-                    gene = gene.split('[')[1].split(']')[0].split('+')
+                    #gene = gene.split('[')[1].split(']')[0].split('+')
+                    gene = gene[1:-1].split('+')
                 else:
                     continue
-            bar = a[0:8]
             umi = a[8:16]
             if ambiguous and type(gene) == list:
                 for g in gene:
@@ -237,6 +419,19 @@ def umi_count(sam, txt, barcodes, ambiguous):
                     uni = '0:0'
                 line = line + '\t' + uni
             out.write(line + '\n')
+            
+    mapflags=mapmat.keys()
+    with open(sam+'.flagstat',"w") as out:
+        for mapflag in sorted(mapflags):
+            line = 'flag_'+str(mapflag)
+            for bar in barcodes:
+                if bar in mapmat[mapflag]:
+                    uni = str(mapmat[mapflag][bar])
+                else:
+                    uni = '0'
+                line = line + '\t' + uni
+            out.write(line + '\n')
+    
     return True
 
 def get_samples(input, logging):
@@ -389,7 +584,7 @@ def config_check(cf):
     #type = click.File(mode='r', encoding=None, errors='strict', lazy=None, atomic=False),
     help = 'use Default to process all matched samples in INPUT or specify a file for the option. Notice, one SAMPLE per line in that specified file, and only included samples will be processed.')
 @click.option('-p','--thread', metavar='THREAD', nargs=1, required=False,
-    type=click.INT, show_default = False,
+    #type=click.INT, show_default = False,
     help = 'run in parallel-mode if THREAD > 1')
 @click.option('-f','--force', required=False, is_flag=True,
     help = 'delete the OUTPUT dir if exists[caution]. Do NOT use it unless you know what you are doing.')
@@ -399,7 +594,10 @@ def config_check(cf):
 def smart(config, input, sample, output, thread, force):
     """
     A simple command line tool for tag-based scRNA-Seq (from TangLab) data analysis.
-    Support for paired-end, illumina 1.9+ phred33
+    Must be illumina 1.9+ phred33 fastq data.
+    
+    version 0.2    
+    multiprocessing is supported!!!    
 
     \b
     Default: 
@@ -427,7 +625,7 @@ def smart(config, input, sample, output, thread, force):
         cf.set('options', 'output', output)
     if(thread):
         cf.set('options', 'thread', thread)
-    
+
     # check output existence
     if os.path.isdir(cf.get('options', 'output')):
         if force:
@@ -485,8 +683,11 @@ def smart(config, input, sample, output, thread, force):
         cf_opt_barcode = os.path.join(py_path, '96-8bp-barcode')
     barcodes = [s.strip() for s in open(cf_opt_barcode, 'r').readlines()]
     if cf_opt_sample != '':
-        #print cf_opt_sample
-        samples = [s.strip() for s in open(cf_opt_sample, 'r').readlines()]
+        #cf_opt_sample could be sample names with comma separated, also a file within which one sample per line
+        if os.path.isfile(cf_opt_sample):
+            samples = [s.strip() for s in open(cf_opt_sample, 'r').readlines()]
+        else:
+            samples = cf_opt_sample.split(',')
     # create output dir
     if not os.path.isdir(output):
         os.makedirs(output)
@@ -557,12 +758,20 @@ def smart(config, input, sample, output, thread, force):
         logging.info(' '*4 + 'annotation GTF files exists!')
     
     # check threads
-    logging.info(' '*2 + 'check THREAD: recommended '+ str(0.2*cpu_count()) +', maximum ' + str(cpu_count()))
-    if (cf_opt_thread > 0.8*cpu_count()):
-        logging.info(' '*4 + 'THREAD exceed 80% maximum core numbers! Number '+ str(int(0.6*int(cpu_count()))) + ' is recommended if available!')
+    # assign threads 
+    mp_processes = len(sampleinfos.keys())
+    mp_thread_per_sample = cf_opt_thread/mp_processes
+    while mp_thread_per_sample < 1:
+        mp_processes = mp_processes/2
+        mp_thread_per_sample = cf_opt_thread/mp_processes
+        
+    cf_opt_thread = mp_thread_per_sample * mp_processes
+    logging.info(' '*2 + 'check THREAD: recommended '+ str(0.2* multiprocessing.cpu_count()) +', maximum ' + str( multiprocessing.cpu_count()))
+    if (cf_opt_thread > 0.8* multiprocessing.cpu_count()):
+        logging.info(' '*4 + 'THREAD exceed 80% maximum core numbers! Number '+ str(int(0.6*int( multiprocessing.cpu_count()))) + ' is recommended if available!')
         click_exit(logpath)
     else:
-        logging.info(' '*4 + str(cf_opt_thread) + ' cores will be used for next analyses.')
+        logging.info(' '*4 + str(cf_opt_thread) + ' threads will be used (' + str(mp_thread_per_sample) + ' threads per sample).')
     
     logging.info('STEP0 - END')
     
@@ -591,122 +800,25 @@ def smart(config, input, sample, output, thread, force):
     mymkdir(smart_mapping_dir)
     mymkdir(smart_quantify_dir)
     
-    for s,p in sampleinfos.items():
-        logging.info(s + ' >>> proceesing start...')
-        #0. fastqc
-        logging.info(s + ' >>> 0. fastqc: check sequencing quality')
-        s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, cf_opt_thread, outs_fastqc_dir, ' '.join(p[0] + p[1])), cf_step_qc, logging, '0. fastqc')
-        if s_ret == None:
-            click_exit(logpath)
-        #1. paird2single
-        logging.info(s + ' >>> 1. paired2single ')
-        s_fq_valid = os.path.join(smart_clean_dir, s+'_valid.fastq.gz')
-        s_fq_others = os.path.join(smart_clean_dir, s+'_others.fastq.gz')
-        #s_ret = paired2single(p[0], p[1], barcodes, mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength)
-        s_ret = step(s,'%s %s %s %s %s %d %s %s %s %s %d %s' %(cf_tool_perl, perl_paired2single, ','.join(p[0]), ','.join(p[1]), ','.join(barcodes), mismatch, s_fq_valid, s_fq_others, cf_opt_tso, cf_opt_polya, minlength, os.path.join(smart_clean_dir, s+'.barcodes.json')), cf_step_single, logging, '1. paired2single')
-        if (s_ret == None):
-            click_exit(logpath)
-        #2. cutadapt
-        s_fq_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.fastq.gz')
-        s_log_valid_trim = os.path.join(smart_clean_dir, s+'_valid_trim.log')
-        logging.info(s+' >>> 2. cutadapt: cleaning data (trim adapter and remove low quality )')
-        s_ret = step(s, '%s -j %s' %(cf_tool_cutadapt, cf_opt_thread) + ' -a '.join(['']+cf_opt_adaptor) + ' --trim-n -m %d --max-n=%d -o %s %s > %s 2>&1' %(minlength, cf_opt_maxn, s_fq_valid_trim, s_fq_valid, s_log_valid_trim), cf_step_clean, logging, '2. cutadapt')
-        if s_ret == None:
-            click_exit(logpath)
-        if cf_step_clean:
-            os.remove(s_fq_valid)
-        #3. fastqc
-        logging.info(s+' >>> 3. clean-fastqc: check clean quality ')
-        s_ret = step(s, '%s -t %d -o %s %s' %(cf_tool_fastqc, cf_opt_thread, outs_fastqc_dir, s_fq_valid_trim), cf_step_qc & cf_step_clean, logging, '3. clean-fastqc')
-        if s_ret == None:
-            click_exit(logpath)
-        #4.1 hisat2
-        s_summary_mapping = os.path.join(smart_mapping_dir, s+'.align_summary.txt')
-        s_sam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.sam')
-        logging.info(s+' >>> 4.1 hisat2: clean reads mapping to reference')
-        s_ret = step(s, '%s -p %s --summary-file %s -x %s -S %s -U %s ' %(cf_tool_hisat2, cf_opt_thread, s_summary_mapping, cf.get('reference', cf_opt_ref), s_sam_mapping, s_fq_valid_trim), cf_step_mapping, logging, '4.1 hisat2')
-        if (s_ret == None):
-            click_exit(logpath)
-        # 4.2 samtools view
-        s_bam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.bam')
-        logging.info(s+' >>> 4.2 samtools view: sam to bam')
-        s_ret = step(s, '%s view -h -b --threads %d -o %s %s' %(cf_tool_samtools, cf_opt_thread-1, s_bam_mapping, s_sam_mapping), cf_step_mapping, logging, '4.2 samtools view')
-        if (s_ret == None):
-            click_exit(logpath)
-        if cf_step_mapping:
-            os.remove(s_sam_mapping)
-        # 4.3 samtools sort
-        s_sorted_bam_mapping = os.path.join(smart_mapping_dir, s+'.mapped.sorted.bam')
-        logging.info(s+' >>> 4.3 samtools sort: sort bam')
-        s_ret = step(s, '%s sort --threads %d -o %s %s' %(cf_tool_samtools, cf_opt_thread-1, s_sorted_bam_mapping, s_bam_mapping), cf_step_mapping, logging, '4.3 samtools view')
-        if (s_ret == None):
-            click_exit(logpath)
-        if cf_step_mapping:
-            os.remove(s_bam_mapping)
-        #4.4 samtools index
-        logging.info(s+' >>> 4.4 samtools index ')
-        s_ret = step(s, '%s index -@ %d %s' %(cf_tool_samtools, cf_opt_thread-1, s_sorted_bam_mapping), cf_step_mapping, logging, '4.4 samtools index')
-        if (s_ret == None):
-            click_exit(logpath)
-        
-        # 5.1 htseq-count
-        logging.info(s+' >>> 5.1 htseq-count ')
-        s_sam_quantify = os.path.join(smart_quantify_dir, s+'.quantify.sam')
-        s_txt_quantify = os.path.join(smart_quantify_dir, s+'.quantify.txt')
-        s_ret = step(s, '%s view -h %s | htseq-count -s no -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_bam_mapping, s_sam_quantify, cf.get('annotation', cf_opt_gtf), s_txt_quantify), cf_step_quantify, logging, '5.1 htseq-count')
-        if (s_ret == None):
-            click_exit(logpath)
-        # 5.2 UMI count
-        logging.info(s+' >>> 5.2 UMI-count ')
-        if cf_step_quantify:
-            s_ret = umi_count(s_sam_quantify, s_txt_quantify, barcodes, False)
-            os.remove(s_sam_quantify)
-            if not s_ret:
-                logging.warning(s +' ::: 5.2 UMI-count skipped, due to nonzero return!')
-                click_exit(logpath)
-            else:
-                logging.info(s + ' ::: 5.2 UMI-count: finished') # allright
-        else:
-            logging.info(s +' ::: 5.2 UMI-count: skipped as you wish.') 
+    # wrap whole pipeline to an inner function
+    
+    
+    #using multiprocessing to remedy time-consuming fastq barcode-spliting and htseq-count, which can only be run in single thread mode and typically takes 5 hours one sample.
 
-        # 6.1 unmapped reads
-        s_fq_unmapped = os.path.join(smart_clean_dir, s+'_valid_trim.unmapped.fastq.gz')
-        logging.info(s+' >>> 6.1 unmapped reads')
-        s_ret = step(s, '%s -o %s %s' %(cf_tool_bam2fastx, s_fq_unmapped, s_sorted_bam_mapping), cf_step_remapping, logging, '6.1 unmapped reads')
-        if (s_ret == None):
-            click_exit(logpath)
-        if cf_step_remapping or cf_step_requantify:
-            for i in range(len(cf_opt_reref)):
-                s_reref = cf_opt_reref[i]
-                s_reref_path = cf.get('reference', s_reref)
-                s_log_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.align_summary.txt')
-                s_sam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sam')
-                s_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.bam')
-                s_sorted_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sorted.bam')
-                s_sorted_filtered_bam_remapping = os.path.join(smart_mapping_dir, s+'.unmapped.'+s_reref+'.sorted_filtered.bam')
-                s_remapping_cmd = ['' for j in range(6)]
-                s_remapping_cmd[0] = '%s -p %d --no-softclip --summary-file %s -x %s --no-unal -S %s -U %s' %(cf_tool_hisat2, cf_opt_thread, s_log_remapping, s_reref_path, s_sam_remapping, s_fq_unmapped)
-                s_remapping_cmd[1] = '%s view --threads %d -b -o %s %s' %(cf_tool_samtools, cf_opt_thread, s_bam_remapping, s_sam_remapping)
-                s_remapping_cmd[2] = '%s sort --threads %d -o %s %s' %(cf_tool_samtools, cf_opt_thread, s_sorted_bam_remapping, s_bam_remapping)
-                s_remapping_cmd[3] = '%s filter -tag XM:0 -in %s -out %s' %(cf_tool_bamtools, s_sorted_bam_remapping, s_sorted_filtered_bam_remapping)
-                s_remapping_cmd[4] = '%s index -@ %d %s' %(cf_tool_samtools, cf_opt_thread, s_sorted_filtered_bam_remapping)
-                s_remapping_cmd[5] = 'rm %s %s %s' %(s_sam_remapping, s_bam_remapping, s_sorted_bam_remapping)
-                
-                logging.info(s+' >>> 6.2 unmapped remapping to '+s_reref)
-                s_ret = step(s, ' && '.join(s_remapping_cmd), cf_step_remapping, logging, '6.2 unmapped remapping to' + s_reref)
-                if s_ret == None:
-                    click_exit(logpath)
-                s_regtf = cf_opt_regtf[i]
-                s_sam_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.sam')
-                s_txt_requantify = os.path.join(smart_quantify_dir, s+'.unmapped.'+s_regtf +'.requantify.txt')
-                logging.info(s+' >>> 6.3 requantify by '+s_regtf)
-                s_ret = step(s, '%s view -h %s | %s -s no --nonunique all -f sam -o%s - %s > %s' %(cf_tool_samtools, s_sorted_filtered_bam_remapping, cf_tool_htseq, s_sam_requantify, cf.get('annotation', s_regtf), s_txt_requantify), cf_step_requantify, logging, '6.3 requantify by '+ s_regtf)
-                if s_ret == None:
-                    logging.warning(s +' ::: skip requantify by ' + s_regtf + ', due to None matched reads?')
-                    #click_exit(logpath)
-                if cf_step_requantify:
-                    umi_count(s_sam_requantify, s_txt_requantify, barcodes, True)
-                    os.remove(s_sam_requantify)
+    # pool = multiprocessing.Pool(processes=mp_processes)
+    # pool_results =[]
+    # for s,p in sampleinfos.items():
+    #     pool.apply_async(run_per_sample, args = (s, p, cf,logging, mp_thread_per_sample, logpath, perl_paired2single, barcodes,))
+    # pool.close()
+    # pool.join()
+    mp = {}
+    for s,p in sampleinfos.items():
+        while(len(multiprocessing.active_children()) > mp_processes-1):
+            time.sleep(10)
+        mp[s] = multiprocessing.Process(target=run_per_sample, args=(s, p, cf,logging, mp_thread_per_sample, logpath, perl_paired2single, barcodes))
+        mp[s].start()
+    for m in mp.values():
+        m.join()
     # summary results
     if cf_step_summary:
         s = "Summary"
