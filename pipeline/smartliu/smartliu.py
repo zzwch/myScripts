@@ -704,7 +704,7 @@ def smart(config, input, sample, output, thread, force):
     logfile = open(logpath, "w")
     logfile.write("A simple command line tool for tag-based scRNA-Seq data analysis.\n")
     logfile.close()
- 
+    os.system('smartliu --version > '+logpath)
     logging.basicConfig(filename = logpath, 
         level = logging.INFO, filemode = 'a', format = '%(asctime)s - %(levelname)s: %(message)s')
     #logging.debug('debug')
