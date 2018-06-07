@@ -47,5 +47,8 @@ for(s in samples){
                           #            )
                           )
 }
-write.table(stat_barcodes1, file = file.path(summary_dir, "stat_barcodes.mismatch.xls"), sep = "\t")
-write.table(stat_barcodes2, file = file.path(summary_dir, "stat_barcodes.xls"), sep = "\t")
+
+stat_barcodes1 <- cbind(cell_id = rownames(stat_barcodes1), stat_barcodes1)
+stat_barcodes2 <- cbind(cell_id = rownames(stat_barcodes2), stat_barcodes2)
+write.table(stat_barcodes1, file = file.path(summary_dir, "stat_barcodes.mismatch.xls"), sep = "\t",row.names = F)
+write.table(stat_barcodes2, file = file.path(summary_dir, "stat_barcodes.xls"), sep = "\t",row.names = F)

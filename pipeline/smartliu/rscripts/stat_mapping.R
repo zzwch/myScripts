@@ -25,4 +25,5 @@ for(s in samples){
   tmp <- as.numeric(apply(tmp, 1, function(x) gsub(" |\\(.*","",x)))
   alignStat[s,] <- c(s, tmp[1], tmp[1]-tmp[2], (tmp[1] - tmp[2])/tmp[1], tmp[3], tmp[3]/tmp[1])
 }
+
 write.table(alignStat, file = file.path(summary_dir, "stat_mapping.xls"), sep = "\t", row.names = F)
