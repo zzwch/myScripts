@@ -31,7 +31,7 @@ ggthemr(palette = "flat", layout = "clear", spacing = 1, type = "outer")
 # get barcodes splitting data
 ##############
 # by pool
-barcodes_split <- as.data.frame(read.delim(file.path(summary_dir,"stat_barcodes.txt"), header = T))
+barcodes_split <- as.data.frame(read.delim(file.path(summary_dir,"stat_barcodes.txt"), header = T, check.names = F))
 pool_n <- nrow(barcodes_split)/97
 barcodes_split$Sample <- gsub(pattern = "_sc[0-9]+|_unmatched$", "", barcodes_split$cell_id)
 barcodes_split$Match <- ifelse(grepl("_sc[0-9]+$",barcodes_split$cell_id), "matched", "unmatched")
@@ -62,25 +62,25 @@ ggData <- melt(stat_split[stat_split$Match != "whole", c("Sample","Match","split
                id.vars = c("Sample","Match"), variable.name = "Valid",value.name = c("Count"))
 p_pool_count <- ggplot(ggData) + 
   geom_bar(aes(Valid, Count,fill = Match), position = position_stack(), stat = "identity") + 
-  facet_wrap(~Sample, nrow = 1) + theme(legend.position = "bottom") +
+  facet_wrap(~Sample, nrow = 1) + theme(legend.position = "top") +
   labs(title = "Counting barcode-match reads after 96-barcodes splitting", 
        subtitle = "by Pool with consideration of barcode mismatch and read length validation")
 # plot barcode ratio
 p_pool_ratio <- ggplot(stat_split, mapping = aes(Sample, valid.ratio, color = Match)) + 
   geom_point() + geom_line() +
-  theme(legend.position = "bottom") + ylim(c(0,1)) +
+  theme(legend.position = "top") + ylim(c(0,1)) +
   labs(title = "Ratio of length-valid reads in barcode-match reads", 
        subtitle = "by Pool with consideration of barcode mismatch")
 # plot pool magnitudes
 p_pool_magnitudes <- ggplot(stat_split, mapping = aes(Sample, pool.magnitudes)) +
   geom_point() + geom_line() + 
-  theme(legend.position = "bottom") +
+  theme(legend.position = "top") +
   labs(title = "Magnitude of barcode-match reads (in log10 scale)", 
        subtitle = "by Pool")
 # plot pool variance
 p_pool_variance <- ggplot(stat_split, mapping = aes(Sample, pool.variance)) +
   geom_point() + geom_line() +
-  theme(legend.position = "bottom") +
+  theme(legend.position = "top") +
   labs(title = "Variance of barcode-match reads in pooled cells", 
        subtitle = "by Pool")
 # save outputs
@@ -91,7 +91,7 @@ write.table(stat_split, file = file.path(outs_dir, "outs_pool.xls"), sep = "\t",
 
 ##############
 # by cell
-barcodes_mismatch <- as.data.frame(read.delim(file.path(summary_dir,"stat_barcodes.mismatch.txt"), header = T))
+barcodes_mismatch <- as.data.frame(read.delim(file.path(summary_dir,"stat_barcodes.mismatch.txt"), header = T, check.names = F))
 stat_barcodes <- barcodes_mismatch
 stat_barcodes$Sample <- gsub(pattern = "_sc[0-9]+$", "", stat_barcodes$cell_id)
 stat_barcodes$Barcode <- as.numeric(gsub(pattern = ".*_sc([0-9]+)$", "\\1", stat_barcodes$cell_id))
@@ -112,7 +112,7 @@ ggData$mismatch <- gsub(pattern = ".*_mis", "", ggData$type)
 p_barcode_count <- ggplot(ggData) +  
   geom_bar(mapping = aes(Barcode, Count, fill = mismatch, group = Group), 
            position = "dodge", stat = "identity", width = 0.6) +
-  facet_wrap(~Sample, ncol = 1) + theme(legend.position = "bottom") +
+  facet_wrap(~Sample, ncol = 1) + theme(legend.position = "top") +
   scale_x_continuous(minor_breaks = seq(0,96, 5)) +
   theme(panel.grid.minor.x = element_line(colour = "grey", linetype = "dashed")) +
   labs(title = "Counting barcode-match reads after 96-barcodes splitting", 
@@ -125,7 +125,7 @@ ggData$Barcode <- as.numeric(gsub(pattern = ".*_sc([0-9]+)", "\\1", ggData$cell_
 #ggData[is.na(ggData)] <- 0
 p_barcode_ratio <- ggplot(ggData, mapping = aes(Barcode, Ratio, color = type)) +  
   geom_line(size = 1) + geom_point(size = 1) +
-  facet_wrap(~Sample, ncol = 1) +  theme(legend.position = "bottom") +
+  facet_wrap(~Sample, ncol = 1) +  theme(legend.position = "top") +
   scale_x_continuous(minor_breaks = seq(0,96, 5)) +
   theme(panel.grid.minor.x = element_line(colour = "grey", linetype = "dashed")) +
   labs(title = "Ratio of length-valid reads in barcode-match reads", 
@@ -155,15 +155,20 @@ for(i in sort(unique(m_refs))){
     # save outputs
     if(!file.copy(from = file.path(summary_dir, ref_gtf_umi), to = file.path(outs_dir, paste0(i,".",j,".umi.txt")), overwrite = T)) stop("file.copy error")
     
-    flag <- as.data.frame(t(read.delim(file.path(summary_dir, ref_gtf_flag), header = T, row.names = 1)))
+    flag <- as.data.frame(t(read.delim(file.path(summary_dir, ref_gtf_flag), header = T, check.names = F, row.names = 1)))
     colnames(flag) <- plyr::mapvalues(x = colnames(flag), paste0("flag_", c(0,4,16,256,272)), c("mapped_forward", "unmapped", "mapped_reverse", "mapped_notprimary_forward", "mapped_notprimary_reverse"))
-    read <- as.data.frame(read.delim(file.path(summary_dir, ref_gtf_read), header = T, row.names = 1))
-    umi <- as.data.frame(read.delim(file.path(summary_dir, ref_gtf_umi), header = T, row.names = 1))
-    ref_gtf_stat <- cbind(flag, gene_reads = colSums(read), gene_umis = colSums(umi))
+    read <- as.data.frame(read.delim(file.path(summary_dir, ref_gtf_read), header = T, check.names = F, row.names = 1))
+    umi <- as.data.frame(read.delim(file.path(summary_dir, ref_gtf_umi), header = T, check.names = F, row.names = 1))
+    ref_gtf_stat <- cbind(flag, gene_reads = colSums(read), gene_umis = colSums(umi), 
+                          spike_reads = colSums(read[grep("^ERCC-|^RGC-", rownames(read)),,drop = F]),
+                          spike_umis = colSums(umi[grep("^ERCC-|^RGC-", rownames(umi)),,drop = F]))
     ref_gtf_stat$barcode <- as.numeric(gsub(".*_sc", "", rownames(ref_gtf_stat)))
     ref_gtf_stat$sample <- gsub("_sc[0-9]+$", "", rownames(ref_gtf_stat))
     ref_gtf_stat$mapping_rate <- rowSums(ref_gtf_stat[,c("mapped_forward","mapped_reverse")])/rowSums(ref_gtf_stat[,c("mapped_forward","mapped_reverse","unmapped")])
     ref_gtf_stat$umi_rate <- ref_gtf_stat$gene_umis/ref_gtf_stat$gene_reads
+    ref_gtf_stat$spike_ratio_read <- ref_gtf_stat$spike_reads/ref_gtf_stat$gene_reads
+    ref_gtf_stat$spike_ratio_umi <- ref_gtf_stat$spike_umis/ref_gtf_stat$gene_umis
+    
     ##############
     # plot count
     ggData <- melt(ref_gtf_stat[,c("sample", "barcode", "gene_reads", "gene_umis")], 
@@ -171,21 +176,21 @@ for(i in sort(unique(m_refs))){
     p_cell_count <- ggplot(ggData) +  
       geom_bar(mapping = aes(barcode, count, fill = type, group = type), 
                position = "dodge", stat = "identity", width = 0.6) +
-      facet_wrap(~sample, ncol = 1) + theme(legend.position = "bottom") +
+      facet_wrap(~sample, ncol = 1) + theme(legend.position = "top") +
       scale_x_continuous(minor_breaks = seq(0,96, 5)) +
       theme(panel.grid.minor.x = element_line(colour = "grey", linetype = "dashed")) +
       labs(title = "Counting reads/UMIs mapped to gene exons", 
            subtitle = "by each cell")
     
     # plot ratio
-    ggData <- melt(ref_gtf_stat[,c("sample", "barcode", "mapping_rate", "umi_rate")], 
+    ggData <- melt(ref_gtf_stat[,c("sample", "barcode", "mapping_rate", "umi_rate", "spike_ratio_read", "spike_ratio_umi")], 
                    id.vars = c("sample","barcode"), variable.name = "type", value.name = "ratio")
     p_cell_ratio <- ggplot(ggData, mapping = aes(barcode, ratio, color = type)) +  
       geom_line(size = 1) + geom_point(size = 1) +
-      facet_wrap(~sample, ncol = 1) +  theme(legend.position = "bottom") +
+      facet_wrap(~sample, ncol = 1) +  theme(legend.position = "top") +
       scale_x_continuous(minor_breaks = seq(0,96, 5)) +
       theme(panel.grid.minor.x = element_line(colour = "grey", linetype = "dashed")) +
-      labs(title = "Ratio of mapped reads and Ratio of unique UMIs", 
+      labs(title = "Ratio of mapped reads, unique UMIs, spkie_reads and spike_UMIs", 
            subtitle = "by each cell")
     
     pdf(file = file.path(outs_dir, paste0("outs_",i,".",j,".pdf")), width = 15, height = 5* pool_n)
@@ -202,7 +207,7 @@ for(i in sort(unique(m_refs))){
     
     
   }
-  ref_mapping <- as.data.frame(read.delim(file.path(summary_dir,ref_mapping_file), header = T))
+  ref_mapping <- as.data.frame(read.delim(file.path(summary_dir,ref_mapping_file), header = T, check.names = F))
   colnames(ref_mapping) <- paste0(i,"|",tolower(colnames(ref_mapping)))
   ref_stat <- cbind(ref_stat, ref_mapping)
   for(m in 1:nrow(ref_mapping)){
