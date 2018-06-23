@@ -387,7 +387,7 @@ def umi_count(sam, txt, barcodes, ambiguous):
             if "__" in gene:
                 if (ambiguous and 'ambiguous' in gene):
                     #gene = gene.split('[')[1].split(']')[0].split('+')
-                    gene = gene[1:-1].split('+')
+                    gene = gene[12:-1].split('+')
                 else:
                     continue
             umi = a[8:16]
@@ -704,7 +704,7 @@ def smart(config, input, sample, output, thread, force):
     logfile = open(logpath, "w")
     logfile.write("A simple command line tool for tag-based scRNA-Seq data analysis.\n")
     logfile.close()
-    os.system('smartliu --version > '+logpath)
+    os.system('smartliu --version >> '+logpath)
     logging.basicConfig(filename = logpath, 
         level = logging.INFO, filemode = 'a', format = '%(asctime)s - %(levelname)s: %(message)s')
     #logging.debug('debug')
