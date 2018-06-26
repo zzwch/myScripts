@@ -27,3 +27,5 @@ cellranger mkgtf Homo_sapiens.GRCh38.ensembl.gtf Homo_sapiens.GRCh38.ensembl.fil
                    
 4. mkref
 cellranger mkref --genome=output_genome --fasta=input.fa --genes=input.gtf
+eg.
+nohup cellranger mkref --genome=refdata-cellranger-hg19-gencode-1.2.0 --fasta=/data1/Database/genome/fromTangLab/hg19/hg19.fa --genes=/data1/Database/genome/GRCh37/gencode.v19.annotation.gtf --nthreads=10 &
