@@ -31,3 +31,11 @@ cellranger mkgtf Homo_sapiens.GRCh38.ensembl.gtf Homo_sapiens.GRCh38.ensembl.fil
 cellranger mkref --genome=output_genome --fasta=input.fa --genes=input.gtf
 eg.
 nohup cellranger mkref --genome=refdata-cellranger-hg19-gencode-1.2.0 --fasta=/data1/Database/genome/fromTangLab/hg19/hg19.fa --genes=/data1/Database/genome/GRCh37/gencode.v19.annotation.gtf --nthreads=10 &
+
+6. cellranger count UMI
+cellranger count --id=bzl180626 \
+                 --fastqs=/data2/lzc/bzl180509/raw_data/ \
+                 --sample=LSC_A,LSC_C,LSC_G,LSC_T \
+                 --transcriptome=/data1/TenX/refdata-cellranger-hg19-gencode-1.2.0 \
+                 --localcores=10 \
+                 --localmem=50
