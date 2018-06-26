@@ -3,9 +3,11 @@ https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/l
 
 1. Download GFF file from GENCODE
 https://www.gencodegenes.org/stats/archive.html#a19
-2. Download FA file from Ensembl
+2. transform gff to gtf
+gffread gencode.v19.annotation.gff3 -T -F -o gencode.v19.annotation.gtf
+3. Download FA file from Ensembl
 http://asia.ensembl.org/info/data/ftp/index.html
-3. Filter some gene annotations, see https://www.gencodegenes.org/gencode_biotypes.html
+4. (Optional) Filter some gene annotations, see https://www.gencodegenes.org/gencode_biotypes.html
 cellranger mkgtf Homo_sapiens.GRCh38.ensembl.gtf Homo_sapiens.GRCh38.ensembl.filtered.gtf \
                    --attribute=gene_biotype:protein_coding \
                    --attribute=gene_biotype:lincRNA \
@@ -25,7 +27,7 @@ cellranger mkgtf Homo_sapiens.GRCh38.ensembl.gtf Homo_sapiens.GRCh38.ensembl.fil
                    --attribute=gene_biotype:TR_J_pseudogene \
                    --attribute=gene_biotype:TR_C_gene
                    
-4. mkref
+5. mkref
 cellranger mkref --genome=output_genome --fasta=input.fa --genes=input.gtf
 eg.
 nohup cellranger mkref --genome=refdata-cellranger-hg19-gencode-1.2.0 --fasta=/data1/Database/genome/fromTangLab/hg19/hg19.fa --genes=/data1/Database/genome/GRCh37/gencode.v19.annotation.gtf --nthreads=10 &
