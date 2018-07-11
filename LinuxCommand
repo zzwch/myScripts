@@ -1,3 +1,5 @@
+# Rstudio Server port forward
+nohup autossh -M 2005 -NR localhost:47283:localhost:47283 achen@123.57.43.237 > /home/achen/autossh.log
 # 后台运行
 sh run.sh && disown -a && exit
 nohup sh run.sh &
