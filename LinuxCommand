@@ -1,8 +1,22 @@
+Jupyper
+#在服务器上运行，搞清楚jupyter notebook的服务器的IP是多少
+ifconfig | grep “inet addr"
+#配置jupyter notebook
+jupyter notebook --generate-config
+echo "c.ConnectionFileMixin.ip = '0.0.0.0'" >> ~/.jupyter/jupyter_notebook_config.py  #全0表示接受任何IP地址的访问（基于信任局域网使用人的前提）
+echo "c.NotebookApp.ip = '0.0.0.0'" >> ~/.jupyter/jupyter_notebook_config.py
+jupyter notebook
+#执行上述命令，会在terminal看到http://0.0.0:8888/?token=xxxxxxx的提示
+#打开浏览器上粘贴这个地址后，把0.0.0.0替换成服务器的IP地址即可。
+
+
 # Rstudio Server port forward
 nohup autossh -M 2005 -NR localhost:47283:localhost:47283 achen@123.57.43.237 > /home/achen/autossh.log
 # 后台运行
 sh run.sh && disown -a && exit
 nohup sh run.sh &
+
+
 # 特定r版本的conda环境创建
 conda create -n r3.3.2 r=3.3.2
 To activate this environment, use:
