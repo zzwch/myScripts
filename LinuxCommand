@@ -1,3 +1,12 @@
+# UCSC RepeatMasker to GTF
+# http://genome.ucsc.edu/cgi-bin/hgTables
+# SEE describe table schema: Displays schema information for the tables associated with the selected track.
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/rmsk.txt.gz
+zcat rmsk.txt.gz | awk 'OFS="\t" {print $6,"rmsk",$12,$7+1,$8,".",$10,".","repName \""$11"\"; repFamily \""$13"\";"}' > rmsk.gtf
+
+
+
+
 Jupyper
 #在服务器上运行，搞清楚jupyter notebook的服务器的IP是多少
 ifconfig | grep “inet addr"
