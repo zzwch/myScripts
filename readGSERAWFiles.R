@@ -4,6 +4,7 @@
 #' @param show_progress boolean. show the progress bar or not.
 #' @return data matrix
 #' @export
+
 readGSERAW <- function(path = NULL, # specify a tar archive file downloaded from GEO
                                     # or a folder including files extracted from that tar achrvie
                        sep = "\t", # try comma if encounter a problem
