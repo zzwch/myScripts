@@ -27,7 +27,7 @@ readGSERAW <- function(path = NULL, # specify a tar archive file downloaded from
   }
   gsmfiles <- gsmfiles[grepl(pattern = "/GSM", x = gsmfiles)] # in case of files copy from MAC OS
   if(show_progress) {
-    pb.use <- ifelse(Sys.info()['sysname'] != 'Darwin' & require('progress'), T, F)
+    pb.use <- ifelse(Sys.info()['sysname'] == 'Darwin' || !require('progress'), F, T)
     n = length(gsmfiles) +1
     i <- 0
     if(pb.use){
@@ -36,6 +36,7 @@ readGSERAW <- function(path = NULL, # specify a tar archive file downloaded from
         total = n, clear = FALSE, width= 60)
       pb$tick(i)
     }else{
+      cat()
       pb <- txtProgressBar(min = 0, max = n, char = "#", title = "Reading files...",style = 3)
       setTxtProgressBar(pb, i)
     }
