@@ -1,3 +1,8 @@
+# checkSize.sh for Novogene 
+today=`date +"%Y%m%d"`
+find -type f | xargs -n 1 -I {} bash -c 'size=`ls -l {} | cut -f 5 -d " "`; echo -e "$size\t{}"' > checkSize.${today}.xls
+cat checkSize.xls >> checkSize.${today}.xls
+cat checkSize.${today}.xls | sort | uniq -c
 
 # Linux 中利用xargs -P 控制并发数下执行多任务
 nohup ls *.mapped.sorted.bam | xargs -n 1 -I {} -P 7bash -c 'file={};samAddTag.py -i $file -o ${file%.*}.tagged.bam' > nohup.log 2>&1 &
