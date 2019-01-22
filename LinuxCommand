@@ -1,3 +1,6 @@
+# using Apache/httpd + aria2c + aria2WebUI on cloud server for downloading 
+# using seafile on cloud server for file share
+
 # checkSize.sh for Novogene 
 today=`date +"%Y%m%d"`
 find -type f | xargs -n 1 -I {} bash -c 'size=`ls -l {} | cut -f 5 -d " "`; echo -e "$size\t{}"' > checkSize.${today}.xls
