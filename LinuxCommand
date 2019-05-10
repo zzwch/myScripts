@@ -58,6 +58,10 @@ do
   done;
 done
 
+#新增用户
+useradd test
+passwd test
+
 #修改用户主目录，所在用户组
 usermod -g Liulab Hazard
 usermod -d /home/Hazard Hazard
