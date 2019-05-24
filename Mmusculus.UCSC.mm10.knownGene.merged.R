@@ -1,3 +1,7 @@
+## merge trascript bed to be gene-centric bed. see https://www.biostars.org/p/70927/
+## you may also try this: GTFtools: a Python package for analyzing various modes of gene models 
+## use -m Option to Merge all exons of all isoforms of the same gene.
+## https://www.biorxiv.org/content/biorxiv/early/2018/02/11/263517.full.pdf 
 library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 library(rtracklayer)
 library(org.Mm.eg.db)
