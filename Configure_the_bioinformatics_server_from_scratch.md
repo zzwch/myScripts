@@ -43,17 +43,24 @@ https://jingyan.baidu.com/article/b2c186c83eb646c46ff6ff62.html
 自行搜索，不赘述。
 ### 连接服务器
 网线一头插在路由器或交换机上（注意，应保证服务器与自己的工作电脑在同一个局域网下，便于远程访问。），另一头插在服务器的网口上。
+说明：网线插口处有两个指示灯，绿色常亮代表物理连接有效，黄色常亮代表信号传输正常。如果出现闪烁或不亮，可能是水晶头没做好出现接触不良，或者是网线有问题。网线里的细线一定要捋平顺再插入水晶头，尽量多留出线头，避免细线堆叠造成压线不紧而接触不良。
 
 ## 配置服务器
 ### 配置RAID
+两个固态硬盘组RAID1，作为系统盘。
+剩下的3块12T硬盘，暂不设置。
 
 ### 安装CentOS
-...待补充...
+安装了GNOME Desktop选项
+这里注意配置好网络，方便联网。
 
 ### 配置CentOS 7.6 国内软件源
 https://mirrors.tuna.tsinghua.edu.cn/help/centos/
 https://mirrors.tuna.tsinghua.edu.cn/help/epel/
-### 更新软件包
+
+### 安装软件包
+#### 安装NTFS支持，需要完成EPEL源的配置
+yum install ntfs-3g 
 
 ### 安装Anaconda3
 pypi 源
