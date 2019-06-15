@@ -57,12 +57,32 @@ https://jingyan.baidu.com/article/b2c186c83eb646c46ff6ff62.html
 ### 配置CentOS 7.6 国内软件源
 https://mirrors.tuna.tsinghua.edu.cn/help/centos/
 https://mirrors.tuna.tsinghua.edu.cn/help/epel/
+### 挂载数据硬盘
+使用GNOME 3自带的【工具】->【硬盘】，进行硬盘的格式化（ext4），并配置三个硬盘挂载点分别为/data1，/data2, /data3；记得勾选超级权限，避免用户误卸载数据盘
 
 ### 安装软件包
-#### 安装NTFS支持，需要完成EPEL源的配置
+#### 安装NTFS支持
+需要完成EPEL源的配置
 yum install ntfs-3g 
+#### 安装exFAT支持
+我的U盘是exFAT格式（为了便于在MAC OS上用），这个可以跳过。
+可自行百度搜索centos 7 exfat
+https://blog.csdn.net/shile/article/details/52202030
+#### 安装Anaconda3
+以root权限安装
+su
+输入超级用户密码，然后
+bash Anaconda3-2019.03-Linux-x86_64.sh
+#### 安装R
+conda install r
+#### 安装Rstudio Server
+yum install rstudio-server-rhel-1.2.1335-x86_64.rpm
+配置/etc/rstudio/rserver.conf
 
-### 安装Anaconda3
+#### 安装Jupyterhub
+conda install jupyterhub
+
+#### 安装R kernel for Jupyterlab 
 pypi 源
 https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 ### 安装生产环境
