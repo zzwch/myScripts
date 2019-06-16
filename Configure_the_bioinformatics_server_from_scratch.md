@@ -74,21 +74,50 @@ su
 输入超级用户密码，然后
 bash Anaconda3-2019.03-Linux-x86_64.sh
 #### 安装R
-conda install r
+因为已经安装了EPEL源，所以可以直接yum安装
+yum install R
+安装的是3.5.2版本
+这里使用yum安装R，不采用`conda install r`，是因为rstudio-server是使用yum安装，若使用conda装会出现一些动态链接库的问题（yum管理的库与conda管理的库不同导致），不想折腾了。
+##### 待补充R包安装
+从旧服务器上获取package list，然后在新服务器上安装。
+
 #### 安装Rstudio Server
 yum install rstudio-server-rhel-1.2.1335-x86_64.rpm
 配置/etc/rstudio/rserver.conf
+主要是端口
+`www-port=47283`
 
-#### 安装Jupyterhub
+#### 安装Jupyterhub and Jupyterlab
 conda install jupyterhub
 
 #### 安装R kernel for Jupyterlab 
 pypi 源
 https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
+
+#### 安装docker
+跟着docker-ce的安装指引走
+https://docs.docker.com/install/linux/docker-ce/centos/
+
+安装好，配置下`/etc/docker/daemon.json` (没有的话，新建一个,好像内部文字的引号必须双引号，反正用下面这应该能行）
+{
+   "data-root": "/data1/root/docker-data/"
+}
+##### docker pull higlass/higlass-docker
+https://github.com/higlass/higlass-docker
+##### docker pull epgg/eg-react
+https://github.com/lidaof/eg-react
+https://eg.readthedocs.io/en/latest/installation.html
+### 创建用户
+自编脚本批量创建用户及初始化密码，file中每行对应一个用户名。
+```
+cat file | while read user
+do
+  useradd -d /data2/$user -m -g Liulab $user
+  echo ${user}:123456 > passwd.tmp
+  chpasswd < passwd.tmp
+done
+```
 ### 安装生产环境
 从旧服务器上导出常用软件列表，在新服务器上使用conda进行批量安装。
-- R 
 R 源https://mirrors.tuna.tsinghua.edu.cn/help/CRAN/
-- Rstudio-server
-- Jupyterlab
 -- R-Kernels
