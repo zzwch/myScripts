@@ -104,11 +104,12 @@ https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 #### 安装docker
 跟着docker-ce的安装指引走
 https://docs.docker.com/install/linux/docker-ce/centos/
-
-安装好，配置下`/etc/docker/daemon.json` (没有的话，新建一个,好像内部文字的引号必须双引号，反正用下面这应该能行）
+https://yeasy.gitbooks.io/docker_practice/content/
+安装好，配置下`/etc/docker/daemon.json` (没有的话，新建一个,好像内部文字的引号必须双引号，用下面这应该能行）
 {
    "data-root": "/data1/root/docker-data/"
 }
+
 ##### docker pull higlass/higlass-docker
 https://github.com/higlass/higlass-docker
 ##### docker pull epgg/eg-react
@@ -120,10 +121,12 @@ https://eg.readthedocs.io/en/latest/installation.html
 cat file | while read user
 do
   useradd -d /data2/$user -m -g Liulab $user
-  echo ${user}:123456 > passwd.tmp
-  chpasswd < passwd.tmp
+  # for CentOS 7
+  echo ${user}:123456 | chpasswd 
 done
 ```
+`usermod -aG docker $USER` 添加使用docker的用户至docker组
+
 ### 安装生产环境
 从旧服务器上导出常用软件列表，在新服务器上使用conda进行批量安装。
 R 源https://mirrors.tuna.tsinghua.edu.cn/help/CRAN/
