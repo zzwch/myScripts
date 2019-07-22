@@ -1,5 +1,4 @@
 # myScripts
-some scripts to be used again
 `circleInteractionBetween2CellType` R function [![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/anonymouse_genes_cell_type.interaction.circle.png)](/used_functions.R)   
 `gradient_2d.R` [![image](https://raw.githubusercontent.com/lizc07/myScripts/master/images/gradient_2d.png)](/gradient_2d.R)
 ## single cell RNA-Seq analysis method
