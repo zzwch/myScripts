@@ -98,6 +98,8 @@ yum install rstudio-server-rhel-1.2.1335-x86_64.rpm
 conda install jupyterhub
 
 #### 安装R kernel for Jupyterlab 
+https://irkernel.github.io/installation/
+
 pypi 源
 https://mirrors.tuna.tsinghua.edu.cn/help/pypi/
 
