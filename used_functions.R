@@ -146,7 +146,7 @@ circleInteractionBetween2CellType <- function(inner_r ,
   library(ggrepel)
   ggplot() +
     geom_curve(mapping = aes(x = x, y = y, xend = xend, yend = yend), color = "grey",
-               data = getLinks(ec_as_receptor, xy_up_outer, xy_up_inner, target_r = target_r),
+               data = getLinks(pair_inner_as_target, xy_up_outer, xy_up_inner, target_r = target_r),
                arrow = arrow(angle = 10, length = unit(0.1, "inches"),type = 'closed'),
                curvature = curve.curvature, angle = curve.angle, ncp = curve.ncp) +
     geom_point(mapping = aes(x, y), size = 8, color = 'cyan', data = xy_up_outer) +
@@ -154,7 +154,7 @@ circleInteractionBetween2CellType <- function(inner_r ,
     geom_text_repel(mapping = aes(x, y, label = items), data = xy_up_outer) +
     geom_text_repel(mapping = aes(x, y, label = items), data = xy_up_inner) +
     geom_curve(mapping = aes(x = x, y = y, xend = xend, yend = yend),  color = "grey",
-               data = getLinks(ec_as_ligand, xy_dn_inner, xy_dn_outer, target_r = target_r),
+               data = getLinks(pair_inner_as_source, xy_dn_inner, xy_dn_outer, target_r = target_r),
                arrow = arrow(angle = 10, length = unit(0.1, "inches"),type = 'closed'),
                curvature = curve.curvature, angle = curve.angle, ncp = curve.ncp) +
     geom_point(mapping = aes(x, y), size = 8, color = "orange", data = xy_dn_inner) +
@@ -166,8 +166,15 @@ circleInteractionBetween2CellType <- function(inner_r ,
     theme_void()
 }
 
+anonymousGenes <- function(df){
+  source <- unique(df[,1])
+  target <- unique(df[,2])
+  df[,1] <- plyr::mapvalues(df[,1], source, paste0("S", 1:length(source)))
+  df[,2] <- plyr::mapvalues(df[,2], target, paste0("T", 1:length(target)))
+  return(df)
+}
 circleInteractionBetween2CellType(inner_r = 1.3, outer_r = 2,  above_horizon_degree = 10,
-                                  pair_inner_as_source = as.data.frame(ec_as_ligand), 
-                                  pair_inner_as_target = as.data.frame(ec_as_receptor),
+                                  pair_inner_as_source = anonymousGenes(as.data.frame(ec_as_ligand)), 
+                                  pair_inner_as_target = anonymousGenes(as.data.frame(ec_as_receptor)),
                                   curve.curvature = 0.3, curve.angle = 30, curve.ncp = 20,
-                                  nodes_order = 'random',  order_random = 666)
+                                  nodes_order = 'random',  order_random = 888)
