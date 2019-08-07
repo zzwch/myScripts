@@ -31,3 +31,8 @@ route -p add 0.0.0.0 mask 0.0.0.0 111.200.102.1
 route PRINT
 ```
 > 查看路由表
+```
+route CHANGE 0.0.0.0 MASK 0.0.0.0 192.168.31.1 METRIC 90
+route ADD 0.0.0.0 MASK 0.0.0.0 111.200.102.1
+route PRINT
+```
