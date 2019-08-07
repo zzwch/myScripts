@@ -1,3 +1,6 @@
+# window10 powershell MD5 check
+Get-FileHash .\hNo* -Algorithm MD5 | Format-list >> all.md5.txt
+
 # 移动硬盘无法访问“文件或目录损坏且无法读取”，怎样才能修复？
 ```
 chkdsk 盘符: /x /v /f
