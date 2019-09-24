@@ -98,9 +98,9 @@ yum install rstudio-server-rhel-1.2.1335-x86_64.rpm
 conda install jupyterhub
 
 #### 配置jupyterhub 开机自启
-有时需要开机就绪后，开启一些程序。
-cd /etc/systemd/system/
-vi jupyterhub.service
+有时需要开机就绪后，开启一些程序。   
+cd /etc/systemd/system/   
+vi jupyterhub.service   
 ```
 # Default-Start:  2 3 4 5
 # Default-Stop: 0 1 6
@@ -113,11 +113,11 @@ ExecStart=/root/jupyterhub/run.sh
 [Install]
 WantedBy=default.target
 ```
-systemctl start jupyterhub 启动服务
-systemctl status jupyterhub
-若可成功启动，则执行
-systemctl enable jupyterhub
-允许开机自启动
+systemctl start jupyterhub 启动服务   
+systemctl status jupyterhub   
+若可成功启动，则执行   
+systemctl enable jupyterhub   
+允许开机自启动   
 ————————————————
 版权声明：本文为CSDN博主「小猪嘎嘎」的原创文章，遵循 CC 4.0 BY-SA 版权协议，转载请附上原文出处链接及本声明。
 原文链接：https://blog.csdn.net/luoluonuoyasuolong/article/details/88815887
