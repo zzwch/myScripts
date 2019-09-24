@@ -99,19 +99,26 @@ conda install jupyterhub
 
 #### 配置jupyterhub 开机自启
 有时需要开机就绪后，开启一些程序。   
+https://github.com/jupyterhub/jupyterhub/wiki/Run-jupyterhub-as-a-system-service   
 cd /etc/systemd/system/   
 vi jupyterhub.service   
 ```
-# Default-Start:  2 3 4 5
-# Default-Stop: 0 1 6
 [Unit]
-Description=jupyterhub
-After=syslog.target network.target
+Description=Jupyterhub
+After=network-online.target
+
 [Service]
-User=root
-ExecStart=/root/jupyterhub/run.sh
+User=jupyterhub
+ExecStart=/root/anaconda3/bin/jupyterhub --JupyterHub.spawner_class=sudospawner.SudoSpawner
+WorkingDirectory=/root/jupyterhub
+
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
+```
+
+vi /etc/profile.d/custom.sh   
+```
+export PATH=$PATH:/root/anaconda3/bin
 ```
 systemctl start jupyterhub 启动服务   
 systemctl status jupyterhub   
