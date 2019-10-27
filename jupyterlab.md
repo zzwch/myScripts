@@ -20,3 +20,14 @@ cp /usr/share/fonts/wqy-zenhei/wqy-zenhei.ttc /home/Public/BioSoft/anaconda2/env
 vi /home/Public/BioSoft/anaconda2/envs/python36/lib/python3.6/site-packages/matplotlib/font_manager.py
 ```
 > get_fontext_synonyms函数中修改return {'ttf': ('ttf', 'otf')为 return {'ttf': ('ttf', 'otf', 'ttc')
+
+# 2. 配置用户python kernel
+在用到的python版本下安装kernel   
+```
+pip install ipykernel
+```   
+安装kernel 到jupyterlab   
+```
+python -m ipykernel install --name py_project_name --user
+
+```
