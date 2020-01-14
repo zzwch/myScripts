@@ -1,3 +1,9 @@
+# Using Web Portal for visualization of single cell data
+https://github.com/DoruMP/Fast-data-portals-for-scRNAseq-data
+1. 通过百度配置好httpd apache 
+2. 服务器上/etc/httpd/conf/httpd.conf 通过listen 3838开放3838 端口（80端口被shiny占用了。。）
+3. copy web_portal to /var/www/html
+
 # using Apache/httpd + aria2c + aria2WebUI on cloud server for downloading 
 # using seafile on cloud server for file share
 
