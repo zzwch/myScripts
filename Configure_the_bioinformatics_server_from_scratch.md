@@ -81,6 +81,7 @@ su
 输入超级用户密码，然后
 bash Anaconda3-2019.03-Linux-x86_64.sh
 #### 安装R
+2020.09.08 update: https://docs.rstudio.com/resources/install-r/
 因为已经安装了EPEL源，所以可以直接yum安装
 yum install R
 安装的是3.5.2版本
