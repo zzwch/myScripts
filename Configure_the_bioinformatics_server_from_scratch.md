@@ -94,6 +94,8 @@ yum install rstudio-server-rhel-1.2.1335-x86_64.rpm
 配置/etc/rstudio/rserver.conf
 主要是端口
 `www-port=47283`
+#### firewall
+https://www.cnblogs.com/leqhome/p/7639891.html
 
 #### 安装Jupyterhub and Jupyterlab
 conda install jupyterhub
