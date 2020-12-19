@@ -19,3 +19,9 @@ firewall-cmd --list-port
 firewall-cmd --add-port=8080/tcp --permanent #永久开放端口   
 firewall-cmd --reload    
 
+# Host Cerebro on server
+https://romanhaa.github.io/cerebroApp/articles/host_cerebro_on_shinyapps.html#prepare-app-r-file-1   
+Prepare app.R file 
+
+# Control access to Cerebro with a login page
+https://romanhaa.github.io/cerebroApp/articles/control_access_to_cerebro_with_a_login_page.html   
