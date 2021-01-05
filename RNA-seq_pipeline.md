@@ -50,5 +50,9 @@ done
 
 ## use featureCounts program included in the SourceForge Subread package
 http://bioinf.wehi.edu.au/featureCounts/   
+
 Summarize multiple paired-end datasets:   
 `featureCounts -p -t exon -g gene_id -a annotation.gtf -o counts.txt library1.bam library2.bam library3.bam`
+
+exon-level counting https://groups.google.com/g/subread/c/aPM6_4B6bCA   
+`featureCounts -p -t exon -s 0 -T 12 -f -O -a genes.gtf -o featurecounts.txt sample.starAligned.sortedByCoord.out.bam`
