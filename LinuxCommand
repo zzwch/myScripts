@@ -89,16 +89,54 @@ vi /etc/sysconfig/iptables
 --sport：指定源端口（source port 源端口）   
 -j：指定动作类型  
 
-#通过反向隧道访问局域网服务器（局域网服务器必须能联网）
-局域网内服务器：userA@aa.aaa.aa.aaa:portA
-外网服务器：userB@bb.bbb.bbb.bbb:portB
-1. 在局域网服务器A上执行ssh-keygen -P '' 生成~/.ssh/id_rsa.pub文件(需免密登录 ssh-keygen -t rsa ???)
-2. 将生成的文件拷贝至外网服务器B上，cat id_rsa.pub >> ~/.ssh/authorized_keys
-   确认authorized_keys 文件的权限为-rw-------，否则执行chmod 600 ~/.ssh/authorized_keys (重要!!!)
-3. 在局域网服务器A上执行以下命令
-nohup autossh -M portX -NR localhost:portY:localhost:portA userB@bb.bbb.bbb.bbb -p portB > autossh.log 2>&1 &
-portX和portY为任意可用端口，如5004和5005
-4. 在外网服务器B上执行 ssh -p portY userA@localhost 即可访问局域网服务器A
+# linux CentOS 7.6+ 防火墙 firewalld
+systemctl start firewalld.service
+systemctl status firewalld.service
+systemctl stop firewalld.service
+
+firewall-cmd --state
+firewall-cmd --zone=public --list-ports # 所有开放的端口
+firewall-cmd --zone=public --add-port=xxxx/tcp --permanent #开放xxx端口
+firewall-cmd --zone=public --remove-port=xxxx/tcp --permanent #移除xxx端口
+firewall-cmd --reload # 配置立即生效
+
+netstat -ntlp # 查看监听的端口
+
+
+# 通过反向隧道访问局域网服务器（局域网服务器必须能联网）
+内网主机A，公网主机B，以CentOS 7 为例
+1. 公网主机配置/etc/ssh/sshd_config
+`GatewayPorts yes` # 把监听端口绑定到任意IP，否则只能本机127.0.0.1可以访问
+`AllowTcpForwading yes` # 允许sshd 转发tcp数据包
+`sudo service sshd restart` 重启sshd服务
+2. 内网主机安装 autossh
+`yum install autossh`
+3. 设置棉衣登陆，便于实现自动重连
+`ssh-keygen` #执行，然后按回车（依次按下三次），生成免密的公钥和私钥
+`ssh-copy-id user@ip_of_B` # 将密钥复制到公网主机B
+# 或使用以下步骤实现
+在局域网服务器A上执行ssh-keygen生成~/.ssh/id_rsa.pub文件(ssh-keygen -t rsa)
+将生成的文件拷贝至外网服务器B上，然后cat id_rsa.pub >> ~/.ssh/authorized_keys
+确认authorized_keys 文件的权限为-rw-------，否则执行chmod 600 ~/.ssh/authorized_keys (重要!!!)
+4. 在局域网服务器A上执行以下命令
+nohup autossh -M portA1 -NR portB1:localhost:portA2 userB@ipB -p portB2 > autossh.log 2>&1 &
+portA1 可以为任意可用端口（1-65535）
+portA2 是内外服务端口
+portB1 是外网服务端口
+portB2 是外网ssh端口
+user@ipB 是外网主机
+-M portA1 代表内网主机A的portA1端口监视SSH连接，出问题回自动重连
+-N 代表不执行远程命令
+-R 将远程主机的某个端口转发到本地主机的指定端口
+portB1:localhost:portA2 是内外主机A的portA2端口转发至公网主机B的portB1端口上
+-p portB2 是公网主机B的SSH端口，若是默认的22，则可省略
+5. 访问ipB:portB1 即可访问内外ipA:portA2 下的服务内容。
+6. 注意外网B的防火墙设置，将相关端口打开。以腾讯云服务器为例，可在控制台开放端口，无需在Linux系统配置。
+例如：
+nohup autossh -M 2018 -NR 8888:192.168.31.100:8888 userB@ipB > ./autossh.jupyter.txt &
+
+
+??? 5. 在外网服务器B上执行 ssh -p portB1 userA@localhost 即可访问局域网服务器A
 
 
 #kill 筛选出的多个线程
